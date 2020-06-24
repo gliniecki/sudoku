@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Sudoku</string>
+
+    <string name="key_mode_easy" translatable="false">easy_mode</string>
+    <string name="key_mode_medium" translatable="false">medium_mode</string>
+    <string name="key_mode_hard" translatable="false">hard_mode</string>
+</resources>
