@@ -7,15 +7,13 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import timber.log.Timber
 import kotlin.math.min
 
 private const val NONE_SELECTED = -1
+private const val SIZE_SINGLE_BOX = 3
+private const val SIZE_BOARD = 9
 
 class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(context, attrs) {
-
-    private var singleBoxSize = 3
-    private var boardSize = 9
 
     private var cellSizePx = 0f
 
@@ -45,44 +43,25 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-
-//        val widthSpecMode = MeasureSpec.getMode(widthMeasureSpec)
-//        val heightSpecMode = MeasureSpec.getMode(heightMeasureSpec)
-//
-//        when (widthSpecMode) {
-//            MeasureSpec.EXACTLY -> Timber.d( "[onMeasure] widthSpecMode: EXACTLY")
-//            MeasureSpec.UNSPECIFIED -> Timber.d("[onMeasure] widthSpecMode: UNSPECIFIED")
-//            MeasureSpec.AT_MOST -> Timber.d("[onMeasure] widthSpecMode: AT_MOST")
-//        }
-//
-//
-//        when (heightSpecMode) {
-//            MeasureSpec.EXACTLY -> Timber.d("S[onMeasure] heightSpecMode: EXACTLY")
-//            MeasureSpec.UNSPECIFIED -> Timber.d("[onMeasure] heightSpecMode: UNSPECIFIED")
-//            MeasureSpec.AT_MOST -> Timber.d("[onMeasure] heightSpecMode: AT_MOST")
-//        }
-
-        val size = min(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(size, size)
+        val measureSpec = min(widthMeasureSpec, heightMeasureSpec)
+        super.onMeasure(measureSpec, measureSpec)
     }
 
     override fun onDraw(canvas: Canvas) {
-//        Timber.d("[onDraw] width = $width; height = $height")
-        cellSizePx = (width / boardSize).toFloat()
+        cellSizePx = (width / SIZE_BOARD).toFloat()
         fillCells(canvas)
         drawBoard(canvas)
     }
 
     private fun fillCells(canvas: Canvas) {
         if (selectedColumn == NONE_SELECTED || selectedRow == NONE_SELECTED) return
-        for (row in 0..boardSize) {
-            for (column in 0..boardSize) {
+        for (row in 0..SIZE_BOARD) {
+            for (column in 0..SIZE_BOARD) {
                 if (row == selectedRow && column == selectedColumn) {
                     fillCell(canvas, row, column, activeCellPaint)
                 } else if (row == selectedRow || column == selectedColumn) {
                     fillCell(canvas, row, column, highlightedCellPaint)
-                } else if (row / singleBoxSize == selectedRow / singleBoxSize && column / singleBoxSize == selectedColumn / singleBoxSize) {
+                } else if (row / SIZE_SINGLE_BOX == selectedRow / SIZE_SINGLE_BOX && column / SIZE_SINGLE_BOX == selectedColumn / SIZE_SINGLE_BOX) {
                     fillCell(canvas, row, column, highlightedCellPaint)
                 }
             }
@@ -114,8 +93,8 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
     }
 
     private fun drawInternalLines(canvas: Canvas) {
-        for (i in 1 until boardSize) {
-            val paint = when (i % singleBoxSize) {
+        for (i in 1 until SIZE_BOARD) {
+            val paint = when (i % SIZE_SINGLE_BOX) {
                 0 -> thickLinePaint
                 else -> thinLinePaint
             }

@@ -33,6 +33,7 @@ class GameFragment : Fragment() {
 
     private fun setUpBinding() {
         binding.lifecycleOwner = this
+        binding.viewModel = viewModel
     }
 
     private fun observeViewModel() {
