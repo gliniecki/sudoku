@@ -19,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_alignParentStart="true"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/game_board_margin"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -32,8 +32,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/boardView"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginStart="@dimen/buttons_landscape_margins"
+            android:layout_marginEnd="@dimen/buttons_landscape_margins"
             android:columnCount="3"
             android:rowCount="4"
             app:layout_constraintTop_toTopOf="parent"
@@ -46,6 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="0"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(1)}"
                 android:text="1" />
 
@@ -54,6 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="1"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(2)}"
                 android:text="2" />
 
@@ -62,6 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="2"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(3)}"
                 android:text="3" />
 
@@ -70,6 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="0"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(4)}"
                 android:text="4" />
 
@@ -78,6 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="1"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(5)}"
                 android:text="5" />
 
@@ -86,6 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="2"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(6)}"
                 android:text="6" />
 
@@ -94,6 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="2"
                 android:layout_column="0"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(7)}"
                 android:text="7" />
 
@@ -102,6 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="2"
                 android:layout_column="1"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(8)}"
                 android:text="8" />
 
@@ -110,6 +118,7 @@
                 android:layout_height="wrap_content"
                 android:layout_row="2"
                 android:layout_column="2"
+                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(9)}"
                 android:text="9" />
 
@@ -118,6 +127,9 @@
                 android:layout_height="wrap_content"
                 android:layout_row="3"
                 android:layout_column="0"
+                android:theme="@style/GameButton"
+                android:clickable="@{viewModel.isUndoEnabled() ? true : false}"
+                android:alpha="@{viewModel.isUndoEnabled() ? 1f : .3f}"
                 android:onClick="@{() -> viewModel.onUndoClicked()}"
                 android:text="UNDO" />
 
@@ -126,6 +138,8 @@
                 android:layout_height="wrap_content"
                 android:layout_row="3"
                 android:layout_column="1"
+                android:theme="@style/GameButton"
+                android:textColor="@{viewModel.isNotingActive() ? @color/textYellow : @color/textWhite}"
                 android:onClick="@{() -> viewModel.onNotesClicked()}"
                 android:text="NOTES" />
 
@@ -134,6 +148,9 @@
                 android:layout_height="wrap_content"
                 android:layout_row="3"
                 android:layout_column="2"
+                android:theme="@style/GameButton"
+                android:clickable="@{viewModel.isBoardFull() ? true : false}"
+                android:alpha="@{viewModel.isBoardFull() ? 1f : .3f}"
                 android:onClick="@{() -> viewModel.onCheckClicked()}"
                 android:text="CHECK" />
 

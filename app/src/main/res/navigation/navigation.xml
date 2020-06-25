@@ -25,7 +25,7 @@
         android:name="io.github.pawgli.sudoku.ui.screens.game.GameFragment">
 
         <argument
-            android:name="gameMode"
+            android:name="difficulty"
             app:argType="string"/>
 
     </fragment>

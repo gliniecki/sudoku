@@ -10,8 +10,8 @@ import android.view.View
 import kotlin.math.min
 
 private const val NONE_SELECTED = -1
-private const val SIZE_SINGLE_BOX = 3
-private const val SIZE_BOARD = 9
+private const val SINGLE_BOX_SIZE = 3
+private const val BOARD_SIZE = 9
 
 class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
@@ -48,20 +48,26 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
     }
 
     override fun onDraw(canvas: Canvas) {
-        cellSizePx = (width / SIZE_BOARD).toFloat()
+        cellSizePx = (width / BOARD_SIZE).toFloat()
         fillCells(canvas)
         drawBoard(canvas)
     }
 
     private fun fillCells(canvas: Canvas) {
         if (selectedColumn == NONE_SELECTED || selectedRow == NONE_SELECTED) return
-        for (row in 0..SIZE_BOARD) {
-            for (column in 0..SIZE_BOARD) {
-                if (row == selectedRow && column == selectedColumn) {
+        for (row in 0..BOARD_SIZE) {
+            for (column in 0..BOARD_SIZE) {
+
+                val isSelectedCell = row == selectedRow && column == selectedColumn
+                val isSelectedLine = row == selectedRow || column == selectedColumn
+                val isSelectedBox = row / SINGLE_BOX_SIZE == selectedRow / SINGLE_BOX_SIZE
+                        && column / SINGLE_BOX_SIZE == selectedColumn / SINGLE_BOX_SIZE
+
+                if (isSelectedCell) {
                     fillCell(canvas, row, column, activeCellPaint)
-                } else if (row == selectedRow || column == selectedColumn) {
+                } else if (isSelectedLine) {
                     fillCell(canvas, row, column, highlightedCellPaint)
-                } else if (row / SIZE_SINGLE_BOX == selectedRow / SIZE_SINGLE_BOX && column / SIZE_SINGLE_BOX == selectedColumn / SIZE_SINGLE_BOX) {
+                } else if (isSelectedBox) {
                     fillCell(canvas, row, column, highlightedCellPaint)
                 }
             }
@@ -93,8 +99,8 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
     }
 
     private fun drawInternalLines(canvas: Canvas) {
-        for (i in 1 until SIZE_BOARD) {
-            val paint = when (i % SIZE_SINGLE_BOX) {
+        for (i in 1 until BOARD_SIZE) {
+            val paint = when (i % SINGLE_BOX_SIZE) {
                 0 -> thickLinePaint
                 else -> thinLinePaint
             }

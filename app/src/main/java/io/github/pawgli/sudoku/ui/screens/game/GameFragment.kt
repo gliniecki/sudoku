@@ -26,8 +26,8 @@ class GameFragment : Fragment() {
     }
 
     private fun initViewModel() {
-        val gameMode = GameFragmentArgs.fromBundle(requireArguments()).gameMode
-        val viewModelFactory = GameViewModelFactory(gameMode)
+        val difficulty = GameFragmentArgs.fromBundle(requireArguments()).difficulty
+        val viewModelFactory = GameViewModelFactory(difficulty)
         viewModel = ViewModelProvider(this, viewModelFactory).get(GameViewModel::class.java)
     }
 

@@ -44,16 +44,15 @@ class MainMenuFragment : Fragment() {
                 when(it) {
                     OPTION_NONE -> return@Observer
                     OPTION_EXIT -> closeApp()
-                    else -> openGame(mode = it)
+                    else -> openGame(difficulty = it)
                 }
                 viewModel.onChosenOptionHandled()
             }
         )
     }
 
-    private fun openGame(mode: String) {
-        Timber.d("Open the game in $mode mode")
-        this.findNavController().navigate(MainMenuFragmentDirections.actionStartGame(mode))
+    private fun openGame(difficulty: String) {
+        this.findNavController().navigate(MainMenuFragmentDirections.actionStartGame(difficulty))
     }
 
     private fun closeApp() {

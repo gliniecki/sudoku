@@ -3,9 +3,9 @@ package io.github.pawgli.sudoku.ui.screens.main_menu
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.github.pawgli.sudoku.utils.GAME_MODE_EASY
-import io.github.pawgli.sudoku.utils.GAME_MODE_HARD
-import io.github.pawgli.sudoku.utils.GAME_MODE_MEDIUM
+import io.github.pawgli.sudoku.utils.DIFFICULTY_EASY
+import io.github.pawgli.sudoku.utils.DIFFICULTY_HARD
+import io.github.pawgli.sudoku.utils.DIFFICULTY_MEDIUM
 import timber.log.Timber
 
 const val OPTION_NONE = "none"
@@ -22,15 +22,15 @@ class MainMenuViewModel : ViewModel() {
     }
 
     fun onEasyModeClicked() {
-        _chosenOption.value = GAME_MODE_EASY
+        _chosenOption.value = DIFFICULTY_EASY
     }
 
     fun onMediumModeClicked() {
-        _chosenOption.value = GAME_MODE_MEDIUM
+        _chosenOption.value = DIFFICULTY_MEDIUM
     }
 
     fun onHardModeClicked() {
-        _chosenOption.value = GAME_MODE_HARD
+        _chosenOption.value = DIFFICULTY_HARD
     }
 
     fun onExitClicked() {
@@ -38,7 +38,6 @@ class MainMenuViewModel : ViewModel() {
     }
 
     fun onChosenOptionHandled() {
-        Timber.d("[onChosenOptionHandled]")
         _chosenOption.value = OPTION_NONE
     }
 }

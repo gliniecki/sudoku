@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="game_board_margin">10dp</dimen>
+
+    <dimen name="buttons_landscape_margins">20dp</dimen>
+    <dimen name="buttons_portrait_margin_top">10dp</dimen>
+
+</resources>
