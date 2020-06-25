@@ -1,9 +1,10 @@
 package io.github.pawgli.sudoku.models
 
-class Cell(number: Int, val isInitial: Boolean, val notes: MutableSet<Int> = mutableSetOf()) {
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-    var number: Int = number
-        set(value) {
-            if (!isInitial) field = value
-        }
-}
+@Parcelize
+data class Cell(
+    var number: Int,
+    val isInitial: Boolean,
+    val notes: MutableSet<Int> = mutableSetOf()) : Parcelable

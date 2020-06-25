@@ -12,6 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+const val STATUS_FETCHING = "fetching"
 const val STATUS_SUCCESS = "success"
 const val STATUS_FAILURE = "failure"
 
@@ -20,7 +21,12 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private lateinit var board: Board
+    lateinit var board: Board
+        private set
+
+    private val _boardFetchStatus = MutableLiveData<String>()
+    val boardFetchStatus: LiveData<String>
+        get() = _boardFetchStatus
 
     private val _isNotingActive = MutableLiveData<Boolean>()
     val isNotingActive: LiveData<Boolean>
@@ -34,6 +40,10 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
     val isUndoEnabled: LiveData<Boolean>
         get() = _isUndoEnabled
 
+    private val _selectedCell = MutableLiveData<Pair<Int, Int>>()
+    val selectedCell: LiveData<Pair<Int, Int>>
+        get() = _selectedCell
+
     init {
         initLiveDataObjects()
         fetchBoard()
@@ -46,19 +56,22 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
     }
 
     private fun fetchBoard() {
+        _boardFetchStatus.value = STATUS_FETCHING
         coroutineScope.launch {
             val getBoardDeferred = SudokuApi.service.getBoardAsync(difficulty)
             try {
                 val networkBoard = getBoardDeferred.await()
                 board = networkBoard.asDomainModel(difficulty)
+                _boardFetchStatus.value = STATUS_SUCCESS
             } catch (t: Throwable) {
                 Timber.w("Failed fetching the board: ${t.message}")
+                _boardFetchStatus.value = STATUS_FAILURE
             }
         }
     }
 
-    fun onCellSelected(cellIndex: Int) {
-
+    fun onCellClicked(row: Int, column: Int) {
+        _selectedCell.value = Pair(row, column)
     }
 
     fun onNumberClicked(number: Int) {
@@ -74,6 +87,8 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
     fun onCheckClicked() {
         Timber.d("Check clicked")
     }
+
+    fun onTryAgainClicked() {}
 
     override fun onCleared() {
         super.onCleared()

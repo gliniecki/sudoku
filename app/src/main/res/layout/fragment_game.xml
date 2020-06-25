@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
@@ -7,29 +7,45 @@
             type="io.github.pawgli.sudoku.ui.screens.game.GameViewModel" />
     </data>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.screens.MainActivity">
 
-        <io.github.pawgli.sudoku.ui.StandardSudokuBoardView
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <io.github.pawgli.sudoku.ui.SudokuBoardView
             android:id="@+id/boardView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_margin="@dimen/game_board_margin" />
+            android:layout_height="0dp"
+            android:layout_margin="@dimen/game_board_margin"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="1:1"/>
 
         <GridLayout
-            android:id="@+id/buttons"
+            android:id="@+id/gameButtons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/buttons_portrait_margin_top"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/boardView"
             android:columnCount="3"
-            android:rowCount="4">
+            android:rowCount="4"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/boardView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <Button
                 android:layout_width="wrap_content"
@@ -146,6 +162,6 @@
 
         </GridLayout>
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

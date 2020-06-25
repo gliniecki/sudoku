@@ -7,13 +7,28 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import java.lang.IllegalArgumentException
+import kotlin.math.floor
 import kotlin.math.min
+import kotlin.math.sqrt
 
 private const val NONE_SELECTED = -1
-private const val SINGLE_BOX_SIZE = 3
-private const val BOARD_SIZE = 9
+private const val DEFAULT_BOARD_SIZE = 9
 
-class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(context, attrs) {
+class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, attrs) {
+
+    private var onCellClickedListener: ((row: Int, column: Int) -> Unit)? = null
+
+    var boardSize: Int = DEFAULT_BOARD_SIZE
+        set(value) {
+            if (value.isPerfectSquare()) {
+                field = value
+                singleBoxSize = value.sqrt()
+            } else {
+                throw IllegalArgumentException("Size of the board needs to be a perfect square")
+            }
+        }
+    private var singleBoxSize: Int = boardSize.sqrt()
 
     private var cellSizePx = 0f
 
@@ -34,12 +49,12 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
 
     private val highlightedCellPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = Color.LTGRAY
+        color = Color.parseColor("#CBFDC8")
     }
 
     private val activeCellPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = Color.YELLOW
+        color = Color.parseColor("#FBFBCA")
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -48,20 +63,20 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
     }
 
     override fun onDraw(canvas: Canvas) {
-        cellSizePx = (width / BOARD_SIZE).toFloat()
+        cellSizePx = (width / boardSize).toFloat()
         fillCells(canvas)
         drawBoard(canvas)
     }
 
     private fun fillCells(canvas: Canvas) {
         if (selectedColumn == NONE_SELECTED || selectedRow == NONE_SELECTED) return
-        for (row in 0..BOARD_SIZE) {
-            for (column in 0..BOARD_SIZE) {
+        for (row in 0..boardSize) {
+            for (column in 0..boardSize) {
 
                 val isSelectedCell = row == selectedRow && column == selectedColumn
                 val isSelectedLine = row == selectedRow || column == selectedColumn
-                val isSelectedBox = row / SINGLE_BOX_SIZE == selectedRow / SINGLE_BOX_SIZE
-                        && column / SINGLE_BOX_SIZE == selectedColumn / SINGLE_BOX_SIZE
+                val isSelectedBox = row / singleBoxSize == selectedRow / singleBoxSize
+                        && column / singleBoxSize == selectedColumn / singleBoxSize
 
                 if (isSelectedCell) {
                     fillCell(canvas, row, column, activeCellPaint)
@@ -99,8 +114,8 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
     }
 
     private fun drawInternalLines(canvas: Canvas) {
-        for (i in 1 until BOARD_SIZE) {
-            val paint = when (i % SINGLE_BOX_SIZE) {
+        for (i in 1 until DEFAULT_BOARD_SIZE) {
+            val paint = when (i % singleBoxSize) {
                 0 -> thickLinePaint
                 else -> thinLinePaint
             }
@@ -121,8 +136,30 @@ class StandardSudokuBoardView(context: Context, attrs: AttributeSet) : View(cont
     }
 
     private fun onBoardClicked(positionX: Float, positionY: Float) {
-        selectedRow = (positionY / cellSizePx).toInt()
-        selectedColumn = (positionX / cellSizePx).toInt()
+        val clickedRow = (positionY / cellSizePx).toInt()
+        val clickedColumn = (positionX / cellSizePx).toInt()
+        notifyOnCellSelectedListener(clickedRow, clickedColumn)
+    }
+
+    fun setOnCellClickedListener(listener: (row: Int, column: Int) -> Unit) {
+        onCellClickedListener = listener
+    }
+
+    private fun notifyOnCellSelectedListener(row: Int, column: Int) {
+        onCellClickedListener?.invoke(row, column)
+    }
+
+    fun updateSelectedCell(row: Int, column: Int) {
+        selectedRow = row
+        selectedColumn = column
         invalidate()
     }
+}
+
+fun Int.sqrt(): Int { return sqrt(this.toDouble()).toInt() }
+
+fun Int.isPerfectSquare(): Boolean {
+    val sqrt = sqrt(this.toDouble())
+    val sqrtFloor = floor(sqrt)
+    return sqrt == sqrtFloor
 }
