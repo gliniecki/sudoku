@@ -93,7 +93,7 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
 
     private val addedNumberPaint = Paint(). apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = Color.LTGRAY
+        color = Color.GRAY
         textSize = 15 * resources.displayMetrics.density
         textAlign = Paint.Align.CENTER
         typeface = Typeface.SANS_SERIF

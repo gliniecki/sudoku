@@ -10,4 +10,5 @@ data class Board (
     val cells: List<Cell>) : Parcelable {
 
     fun getCell(row: Int, column: Int) = cells[row * size + column]
+    fun getCell(index: Int) = cells[index]
 }

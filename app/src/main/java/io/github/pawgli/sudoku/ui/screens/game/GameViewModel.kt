@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 
 const val STATUS_FETCHING = "fetching"
 const val STATUS_SUCCESS = "success"
@@ -25,6 +26,7 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
 
     lateinit var board: Board
         private set
+    private val movesIndexes = Stack<Int>()
 
     private var selectedRow = NONE_SELECTED
     private var selectedColumn = NONE_SELECTED
@@ -77,13 +79,17 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
             try {
                 val networkBoard = getBoardDeferred.await()
                 board = networkBoard.asDomainModel(difficulty)
-                _boardFetchStatus.value = STATUS_SUCCESS
-                initNumbers()
+                onBoardFetched()
             } catch (t: Throwable) {
                 Timber.w("Failed fetching the board: ${t.message}")
                 _boardFetchStatus.value = STATUS_FAILURE
             }
         }
+    }
+    
+    private fun onBoardFetched() {
+        _boardFetchStatus.value = STATUS_SUCCESS
+        initNumbers()
     }
 
     private fun initNumbers() {
@@ -108,15 +114,17 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
 
     fun onNumberClicked(number: Int) {
         if (selectedRow == NONE_SELECTED || selectedColumn == NONE_SELECTED) return
-        board.getCell(selectedRow, selectedColumn).number = number
-        _numbers.value?.set(getIndex(selectedRow, selectedColumn), number)
-        _numbers.notifyObservers()
+        if (isNotingActive.value == true) addNote(number)
+        else addNumber(number)
     }
 
     fun onNotesClicked() { _isNotingActive.value = !isNotingActive.value!! }
 
     fun onUndoClicked() {
-        Timber.d("Undo clicked")
+        val lastIndex = movesIndexes.last()
+        movesIndexes.pop()
+        removeNumber(lastIndex)
+        if (movesIndexes.empty()) _isUndoEnabled.value = false
     }
 
     fun onCheckClicked() {
@@ -129,6 +137,24 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
         super.onCleared()
         viewModelJob.cancel()
     }
+
+
+    private fun addNumber(number: Int) {
+        val index = getIndex(selectedRow, selectedColumn)
+        board.getCell(index).number = number
+        movesIndexes.push(index)
+        _numbers.value?.set(index, number)
+        _numbers.notifyObservers()
+        _isUndoEnabled.value = true
+    }
+
+    private fun removeNumber(index: Int) {
+        board.getCell(index).number = EMPTY_CELL
+        _numbers.value?.set(index, EMPTY_CELL)
+        _numbers.notifyObservers()
+    }
+
+    private fun addNote(number: Int) {}
 }
 
 fun <T> MutableLiveData<T>.notifyObservers() {
