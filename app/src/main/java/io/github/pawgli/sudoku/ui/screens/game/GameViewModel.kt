@@ -88,7 +88,7 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
         Timber.d("Check clicked")
     }
 
-    fun onTryAgainClicked() {}
+    fun onTryAgainClicked() { fetchBoard() }
 
     override fun onCleared() {
         super.onCleared()

@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import timber.log.Timber
 import java.lang.IllegalArgumentException
 import kotlin.math.floor
 import kotlin.math.min
@@ -14,6 +15,7 @@ import kotlin.math.sqrt
 
 private const val NONE_SELECTED = -1
 private const val DEFAULT_BOARD_SIZE = 9
+private const val DEFAULT_BORDER_WIDTH = 8f
 
 class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
@@ -21,15 +23,18 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
 
     var boardSize: Int = DEFAULT_BOARD_SIZE
         set(value) {
-            if (value.isPerfectSquare()) {
+            if (value.isPerfectSquare() && value <= 36) {
                 field = value
                 singleBoxSize = value.sqrt()
-            } else {
+            } else if (!value.isPerfectSquare()) {
                 throw IllegalArgumentException("Size of the board needs to be a perfect square")
+            } else if (value > 36) {
+                throw IllegalArgumentException("Size of the board cannot exceed 36")
             }
         }
     private var singleBoxSize: Int = boardSize.sqrt()
 
+    private val borderWidthPx = DEFAULT_BORDER_WIDTH
     private var cellSizePx = 0f
 
     private var selectedRow = NONE_SELECTED
@@ -38,13 +43,13 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
         color = Color.BLACK
-        strokeWidth = 8f
+        strokeWidth = borderWidthPx
     }
 
     private val thinLinePaint = Paint().apply {
         style = Paint.Style.STROKE
         color = Color.BLACK
-        strokeWidth = 4f
+        strokeWidth = borderWidthPx / 2
     }
 
     private val highlightedCellPaint = Paint().apply {
@@ -63,7 +68,7 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     }
 
     override fun onDraw(canvas: Canvas) {
-        cellSizePx = (width / boardSize).toFloat()
+        cellSizePx = (width - (2 * borderWidthPx)) / boardSize
         fillCells(canvas)
         drawBoard(canvas)
     }
@@ -91,10 +96,10 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
 
     private fun fillCell(canvas: Canvas, row: Int, column: Int, paint: Paint) {
         canvas.drawRect(
-            column * cellSizePx,
-            row * cellSizePx,
-            (column + 1) * cellSizePx,
-            (row + 1) * cellSizePx,
+            column * cellSizePx + borderWidthPx,
+            row * cellSizePx + borderWidthPx,
+            (column + 1) * cellSizePx + borderWidthPx,
+            (row + 1) * cellSizePx + borderWidthPx,
             paint)
     }
 
@@ -104,22 +109,22 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     }
 
     private fun drawBorder(canvas: Canvas) {
-        val paintThicknessCorrection = thickLinePaint.strokeWidth / 2f
+        val borderThicknessCorrection = borderWidthPx / 2
         canvas.drawRect(
-            0f + paintThicknessCorrection,
-            0f + paintThicknessCorrection,
-            width.toFloat() - paintThicknessCorrection,
-            height.toFloat() - paintThicknessCorrection,
+            0f + borderThicknessCorrection,
+            0f + borderThicknessCorrection,
+            width.toFloat() - borderThicknessCorrection,
+            height.toFloat() - borderThicknessCorrection,
             thickLinePaint)
     }
 
     private fun drawInternalLines(canvas: Canvas) {
-        for (i in 1 until DEFAULT_BOARD_SIZE) {
+        for (i in 1 until boardSize) {
             val paint = when (i % singleBoxSize) {
                 0 -> thickLinePaint
                 else -> thinLinePaint
             }
-            val currentPos = i * cellSizePx
+            val currentPos = i * cellSizePx + borderWidthPx
             canvas.drawLine(currentPos, 0f, currentPos, height.toFloat(), paint)
             canvas.drawLine(0f, currentPos, width.toFloat(), currentPos, paint)
         }
@@ -138,7 +143,13 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     private fun onBoardClicked(positionX: Float, positionY: Float) {
         val clickedRow = (positionY / cellSizePx).toInt()
         val clickedColumn = (positionX / cellSizePx).toInt()
-        notifyOnCellSelectedListener(clickedRow, clickedColumn)
+        if (isCellInBounds(clickedRow, clickedColumn)) {
+            notifyOnCellSelectedListener(clickedRow, clickedColumn)
+        }
+    }
+
+    private fun isCellInBounds(row: Int, column: Int): Boolean {
+        return row in 0 until  boardSize && column in 0 until  boardSize
     }
 
     fun setOnCellClickedListener(listener: (row: Int, column: Int) -> Unit) {

@@ -23,6 +23,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <TextView
+            android:id="@+id/errorMessageDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            android:text="Couldn't download the board"
+            app:layout_constraintBottom_toTopOf="@id/tryAgainButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <Button
+            android:id="@+id/tryAgainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/GameButton"
+            android:visibility="gone"
+            android:onClick="@{() -> viewModel.onTryAgainClicked()}"
+            android:text="Try Again"
+            app:layout_constraintTop_toBottomOf="@id/errorMessageDisplay"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <io.github.pawgli.sudoku.ui.SudokuBoardView
             android:id="@+id/boardView"
             android:layout_width="match_parent"

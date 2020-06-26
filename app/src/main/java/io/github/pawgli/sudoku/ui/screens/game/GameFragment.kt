@@ -1,6 +1,7 @@
 package io.github.pawgli.sudoku.ui.screens.game
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,26 +59,27 @@ class GameFragment : Fragment() {
     private fun setLoadingLayoutVisibility(isVisible: Boolean) {
         val visibility = if (isVisible) View.VISIBLE else View.GONE
         binding.progressBar.visibility = visibility
-        if (isVisible) {
-            setFetchFailureLayoutVisibility(isVisible = false)
-            setGameLayoutVisibility(isVisible = false)
-        }
+        if (isVisible) setGameLayoutVisibility(isVisible = false)
     }
 
     private fun setFetchFailureLayoutVisibility(isVisible: Boolean) {
         val visibility = if (isVisible) View.VISIBLE else View.GONE
-        binding.boardView.visibility = visibility
-        binding.gameButtons.visibility = visibility
+        binding.errorMessageDisplay.visibility = visibility
+        binding.tryAgainButton.visibility = visibility
         if (isVisible) {
-            setLoadingLayoutVisibility(isVisible = false)
             setGameLayoutVisibility(isVisible = false)
+            val handler = Handler()
+            val animationTimeMillis = 1000L
+            handler.postDelayed({
+                setLoadingLayoutVisibility(isVisible = false) // Delayed to avoid jumpy behavior of the animation when user tries to reload the board
+            }, animationTimeMillis)
         }
     }
 
     private fun initGameLayout() {
         binding.boardView.boardSize = viewModel.board.size
-        observeBoard()
         setGameLayoutVisibility(isVisible = true)
+        observeBoard()
     }
 
     private fun setGameLayoutVisibility(isVisible: Boolean) {
@@ -85,6 +87,7 @@ class GameFragment : Fragment() {
         binding.boardView.visibility = visibility
         binding.gameButtons.visibility = visibility
         if (isVisible) {
+
             setLoadingLayoutVisibility(isVisible = false)
             setFetchFailureLayoutVisibility(isVisible = false)
         }
