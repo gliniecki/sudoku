@@ -9,12 +9,7 @@
 
     <style name="GameButton" parent="ThemeOverlay.AppCompat">
         <item name="backgroundTint">@color/colorAccent</item>
-        <item name="android:textColor">@color/textWhite</item>
-    </style>
-
-    <style name="GameButtonHighlighted" parent="ThemeOverlay.AppCompat">
-        <item name="backgroundTint">@color/colorPrimaryDark</item>
-        <item name="android:textColor">@color/textWhite</item>
+        <item name="android:textColor">@color/colorBackground</item>
     </style>
 
 </resources>

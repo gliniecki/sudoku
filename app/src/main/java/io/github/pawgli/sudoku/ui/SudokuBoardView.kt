@@ -1,9 +1,7 @@
 package io.github.pawgli.sudoku.ui
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -14,18 +12,25 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 private const val NONE_SELECTED = -1
-private const val DEFAULT_BOARD_SIZE = 9
-private const val DEFAULT_BORDER_WIDTH = 8f
+private const val EMPTY_CELL = 0
+private const val BOARD_SIZE_DEFAULT = 9
+private const val BORDER_WIDTH_MIN = 2f
+private const val BORDER_WIDTH_MAX = 8f
 
 class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     private var onCellClickedListener: ((row: Int, column: Int) -> Unit)? = null
 
-    var boardSize: Int = DEFAULT_BOARD_SIZE
+    /**
+     * Number of cells in each line
+     * The number has to be a perfect square, max value = 36
+     */
+    var boardSize: Int = BOARD_SIZE_DEFAULT
         set(value) {
             if (value.isPerfectSquare() && value <= 36) {
                 field = value
                 singleBoxSize = value.sqrt()
+                numberOfCells = boardSize * boardSize
             } else if (!value.isPerfectSquare()) {
                 throw IllegalArgumentException("Size of the board needs to be a perfect square")
             } else if (value > 36) {
@@ -33,23 +38,38 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
             }
         }
     private var singleBoxSize: Int = boardSize.sqrt()
-
-    private val borderWidthPx = DEFAULT_BORDER_WIDTH
+    private var numberOfCells: Int = boardSize * boardSize
     private var cellSizePx = 0f
+
+    /**
+     * Width of lines surrounding the board, and separating single boxes
+     * min value = 2, max value = 8
+     */
+    var borderLineWidthPx = BORDER_WIDTH_MAX
+        set(value) {
+            if (value < BORDER_WIDTH_MIN) field = BORDER_WIDTH_MIN
+            if (value > BORDER_WIDTH_MAX) field = BORDER_WIDTH_MAX
+            internalLineWidthPx = value / 2
+        }
+    private var internalLineWidthPx = borderLineWidthPx / 2
 
     private var selectedRow = NONE_SELECTED
     private var selectedColumn = NONE_SELECTED
 
-    private val thickLinePaint = Paint().apply {
+    private val numbers = mutableListOf<Int>()
+    private val initialIndexes = mutableListOf<Int>()
+    private val notes = mutableListOf<MutableSet<Int>>()
+
+    private val borderLinePaint = Paint().apply {
         style = Paint.Style.STROKE
         color = Color.BLACK
-        strokeWidth = borderWidthPx
+        strokeWidth = borderLineWidthPx
     }
 
-    private val thinLinePaint = Paint().apply {
+    private val internalLinePaint = Paint().apply {
         style = Paint.Style.STROKE
         color = Color.BLACK
-        strokeWidth = borderWidthPx / 2
+        strokeWidth = borderLineWidthPx / 2
     }
 
     private val highlightedCellPaint = Paint().apply {
@@ -62,14 +82,35 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
         color = Color.parseColor("#FBFBCA")
     }
 
+    private val initialNumberPaint = Paint(). apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.BLACK
+        textSize = 15 * resources.displayMetrics.density
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.SANS_SERIF
+        isAntiAlias = true
+    }
+
+    private val addedNumberPaint = Paint(). apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.LTGRAY
+        textSize = 15 * resources.displayMetrics.density
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.SANS_SERIF
+        isAntiAlias = true
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val measureSpec = min(widthMeasureSpec, heightMeasureSpec)
         super.onMeasure(measureSpec, measureSpec)
     }
 
     override fun onDraw(canvas: Canvas) {
-        cellSizePx = (width - (2 * borderWidthPx)) / boardSize
+        cellSizePx = (width - (2 * borderLineWidthPx)) / boardSize
+        initialNumberPaint.textSize = cellSizePx * .7f
+        addedNumberPaint.textSize = cellSizePx * .7f
         fillCells(canvas)
+        drawNumbers(canvas)
         drawBoard(canvas)
     }
 
@@ -96,11 +137,34 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
 
     private fun fillCell(canvas: Canvas, row: Int, column: Int, paint: Paint) {
         canvas.drawRect(
-            column * cellSizePx + borderWidthPx,
-            row * cellSizePx + borderWidthPx,
-            (column + 1) * cellSizePx + borderWidthPx,
-            (row + 1) * cellSizePx + borderWidthPx,
+            column * cellSizePx + borderLineWidthPx,
+            row * cellSizePx + borderLineWidthPx,
+            (column + 1) * cellSizePx + borderLineWidthPx,
+            (row + 1) * cellSizePx + borderLineWidthPx,
             paint)
+    }
+
+    private fun drawNumbers(canvas: Canvas) {
+        for ((index, number) in numbers.withIndex()) {
+            if (number != EMPTY_CELL) {
+                val paint = if (initialIndexes.contains(index)) initialNumberPaint else addedNumberPaint
+                val numberString = numbers[index].toString()
+                val bounds = Rect()
+                paint.getTextBounds(numberString, 0, numberString.length, bounds)
+                val textHeight = bounds.height()
+                val x = (getColumn(index) * cellSizePx + borderLineWidthPx) + cellSizePx / 2
+                val y = (getRow(index) * cellSizePx + borderLineWidthPx) + cellSizePx / 2 + textHeight / 2
+                canvas.drawText(numberString, x, y, paint)
+            }
+        }
+    }
+
+    private fun getRow(cellIndex: Int) = cellIndex / boardSize
+
+    private fun getColumn(cellIndex: Int) = cellIndex % boardSize
+
+    private fun drawNotes(canvas: Canvas) {
+
     }
 
     private fun drawBoard(canvas: Canvas) {
@@ -109,22 +173,22 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     }
 
     private fun drawBorder(canvas: Canvas) {
-        val borderThicknessCorrection = borderWidthPx / 2
+        val borderWidthCorrection = borderLineWidthPx / 2
         canvas.drawRect(
-            0f + borderThicknessCorrection,
-            0f + borderThicknessCorrection,
-            width.toFloat() - borderThicknessCorrection,
-            height.toFloat() - borderThicknessCorrection,
-            thickLinePaint)
+            0f + borderWidthCorrection,
+            0f + borderWidthCorrection,
+            width.toFloat() - borderWidthCorrection,
+            height.toFloat() - borderWidthCorrection,
+            borderLinePaint)
     }
 
     private fun drawInternalLines(canvas: Canvas) {
         for (i in 1 until boardSize) {
             val paint = when (i % singleBoxSize) {
-                0 -> thickLinePaint
-                else -> thinLinePaint
+                0 -> borderLinePaint
+                else -> internalLinePaint
             }
-            val currentPos = i * cellSizePx + borderWidthPx
+            val currentPos = i * cellSizePx + borderLineWidthPx
             canvas.drawLine(currentPos, 0f, currentPos, height.toFloat(), paint)
             canvas.drawLine(0f, currentPos, width.toFloat(), currentPos, paint)
         }
@@ -160,10 +224,25 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
         onCellClickedListener?.invoke(row, column)
     }
 
-    fun updateSelectedCell(row: Int, column: Int) {
+    fun setSelectedCell(row: Int, column: Int) {
         selectedRow = row
         selectedColumn = column
         invalidate()
+    }
+
+    fun setInitialIndexes(indexes: List<Int>) {
+        initialIndexes.clear()
+        initialIndexes.addAll(indexes)
+    }
+
+    fun setNumbers(numbers: List<Int>) {
+        if (numbers.size == numberOfCells) {
+            this.numbers.clear()
+            this.numbers.addAll(numbers)
+            invalidate()
+        } else {
+            throw IllegalArgumentException("Size of the list must be equal to the number of cells")
+        }
     }
 }
 

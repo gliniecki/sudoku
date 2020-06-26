@@ -12,6 +12,8 @@ import androidx.lifecycle.ViewModelProvider
 import io.github.pawgli.sudoku.R
 import io.github.pawgli.sudoku.databinding.FragmentGameBinding
 import kotlinx.android.synthetic.main.fragment_game.*
+import timber.log.Timber
+import java.lang.IllegalArgumentException
 
 class GameFragment : Fragment() {
 
@@ -42,6 +44,8 @@ class GameFragment : Fragment() {
     private fun observeViewModel() {
         observeBoardFetchStatus()
         observeSelectedCell()
+        observeInitialIndexes()
+        observeNumbers()
     }
 
     private fun observeBoardFetchStatus() {
@@ -71,7 +75,7 @@ class GameFragment : Fragment() {
             val handler = Handler()
             val animationTimeMillis = 1000L
             handler.postDelayed({
-                setLoadingLayoutVisibility(isVisible = false) // Delayed to avoid jumpy behavior of the animation when user tries to reload the board
+                setLoadingLayoutVisibility(isVisible = false) // Delayed to avoid a jumpy behavior of the animation when user tries to reload the board
             }, animationTimeMillis)
         }
     }
@@ -101,6 +105,24 @@ class GameFragment : Fragment() {
 
     private fun observeSelectedCell() {
         viewModel.selectedCell.observe(viewLifecycleOwner,
-            Observer { boardView.updateSelectedCell(it.first, it.second) })
+            Observer { boardView.setSelectedCell(it.first, it.second) })
+    }
+
+    private fun observeInitialIndexes() {
+        viewModel.initialIndexes.observe(viewLifecycleOwner,
+            Observer { boardView.setInitialIndexes(it) })
+    }
+
+    private fun observeNumbers() {
+        viewModel.numbers.observe(viewLifecycleOwner,
+            Observer {
+                if (it == null || it.size == 0) return@Observer
+                try {
+                    boardView.setNumbers(it)
+                } catch (e: IllegalArgumentException) {
+                    e.printStackTrace()
+                }
+            }
+        )
     }
 }

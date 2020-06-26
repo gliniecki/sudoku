@@ -8,4 +8,6 @@
     <color name="textYellow">#FFFF00</color>
     <color name="colorBackground">#fafafa</color>
 
+    <color name="colorYellowLight">#FBFBCA</color>
+    <color name="colorGreenLight">#CBFDC8</color>
 </resources>

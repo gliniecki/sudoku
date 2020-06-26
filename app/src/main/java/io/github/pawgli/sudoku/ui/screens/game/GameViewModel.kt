@@ -15,6 +15,8 @@ import timber.log.Timber
 const val STATUS_FETCHING = "fetching"
 const val STATUS_SUCCESS = "success"
 const val STATUS_FAILURE = "failure"
+private const val NONE_SELECTED = -1
+private const val EMPTY_CELL = 0
 
 class GameViewModel(private val difficulty: String) : ViewModel() {
 
@@ -23,6 +25,9 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
 
     lateinit var board: Board
         private set
+
+    private var selectedRow = NONE_SELECTED
+    private var selectedColumn = NONE_SELECTED
 
     private val _boardFetchStatus = MutableLiveData<String>()
     val boardFetchStatus: LiveData<String>
@@ -44,6 +49,14 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
     val selectedCell: LiveData<Pair<Int, Int>>
         get() = _selectedCell
 
+    private val _numbers = MutableLiveData<MutableList<Int>>()
+    val numbers: LiveData<MutableList<Int>>
+        get() = _numbers
+
+    private val _initialIndexes = MutableLiveData<MutableList<Int>>()
+    val initialIndexes: LiveData<MutableList<Int>>
+        get() = _initialIndexes
+
     init {
         initLiveDataObjects()
         fetchBoard()
@@ -53,6 +66,8 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
         _isNotingActive.value = false
         _isBoardFull.value = false
         _isUndoEnabled.value = false
+        _numbers.value = mutableListOf()
+        _initialIndexes.value = mutableListOf()
     }
 
     private fun fetchBoard() {
@@ -63,6 +78,7 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
                 val networkBoard = getBoardDeferred.await()
                 board = networkBoard.asDomainModel(difficulty)
                 _boardFetchStatus.value = STATUS_SUCCESS
+                initNumbers()
             } catch (t: Throwable) {
                 Timber.w("Failed fetching the board: ${t.message}")
                 _boardFetchStatus.value = STATUS_FAILURE
@@ -70,12 +86,31 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
         }
     }
 
+    private fun initNumbers() {
+        for (row in 0 until board.size) {
+            for (column in 0 until board.size) {
+                val number = board.getCell(row, column).number
+                _numbers.value?.add(number)
+                if (number != EMPTY_CELL) _initialIndexes.value?.add(getIndex(row, column))
+            }
+        }
+        _initialIndexes.notifyObservers()
+        _numbers.notifyObservers()
+    }
+
+    private fun getIndex(row: Int, column: Int) = board.size * row + column
+
     fun onCellClicked(row: Int, column: Int) {
+        selectedRow = row
+        selectedColumn = column
         _selectedCell.value = Pair(row, column)
     }
 
     fun onNumberClicked(number: Int) {
-        Timber.d("Number $number clicked")
+        if (selectedRow == NONE_SELECTED || selectedColumn == NONE_SELECTED) return
+        board.getCell(selectedRow, selectedColumn).number = number
+        _numbers.value?.set(getIndex(selectedRow, selectedColumn), number)
+        _numbers.notifyObservers()
     }
 
     fun onNotesClicked() { _isNotingActive.value = !isNotingActive.value!! }
@@ -94,4 +129,8 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
         super.onCleared()
         viewModelJob.cancel()
     }
+}
+
+fun <T> MutableLiveData<T>.notifyObservers() {
+    this.value = this.value
 }

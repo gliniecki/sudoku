@@ -7,7 +7,7 @@ import kotlinx.android.parcel.Parcelize
 data class Board (
     val difficulty: String,
     val size: Int,
-    private val cells: List<Cell>) : Parcelable {
+    val cells: List<Cell>) : Parcelable {
 
     fun getCell(row: Int, column: Int) = cells[row * size + column]
 }
