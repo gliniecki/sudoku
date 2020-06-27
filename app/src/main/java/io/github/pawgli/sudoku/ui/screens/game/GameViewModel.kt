@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.github.pawgli.sudoku.models.Board
+import io.github.pawgli.sudoku.models.OnBoardStateChanged
 import io.github.pawgli.sudoku.models.asDomainModel
 import io.github.pawgli.sudoku.network.SudokuApi
 import kotlinx.coroutines.CoroutineScope
@@ -17,19 +18,17 @@ const val STATUS_FETCHING = "fetching"
 const val STATUS_SUCCESS = "success"
 const val STATUS_FAILURE = "failure"
 private const val NONE_SELECTED = -1
-private const val EMPTY_CELL = 0
 
-class GameViewModel(private val difficulty: String) : ViewModel() {
+class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateChanged {
 
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     lateinit var board: Board
         private set
-    private val movesIndexes = Stack<Int>()
 
-    private var selectedRow = NONE_SELECTED
-    private var selectedColumn = NONE_SELECTED
+    private val movesIndexes = Stack<Int>()  // TODO: Hold pairs <index, value> => index / old value?
+    private var currentIndex = NONE_SELECTED
 
     private val _boardFetchStatus = MutableLiveData<String>()
     val boardFetchStatus: LiveData<String>
@@ -51,13 +50,17 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
     val selectedCell: LiveData<Pair<Int, Int>>
         get() = _selectedCell
 
-    private val _numbers = MutableLiveData<MutableList<Int>>()
-    val numbers: LiveData<MutableList<Int>>
+    private val _numbers = MutableLiveData<List<Int>>()
+    val numbers: LiveData<List<Int>>
         get() = _numbers
 
-    private val _initialIndexes = MutableLiveData<MutableList<Int>>()
-    val initialIndexes: LiveData<MutableList<Int>>
+    private val _initialIndexes = MutableLiveData<List<Int>>()
+    val initialIndexes: LiveData<List<Int>>
         get() = _initialIndexes
+
+    private val _message = MutableLiveData<String>()
+    val message: LiveData<String>
+        get() = _message
 
     init {
         initLiveDataObjects()
@@ -68,8 +71,6 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
         _isNotingActive.value = false
         _isBoardFull.value = false
         _isUndoEnabled.value = false
-        _numbers.value = mutableListOf()
-        _initialIndexes.value = mutableListOf()
     }
 
     private fun fetchBoard() {
@@ -86,36 +87,32 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
             }
         }
     }
-    
+
     private fun onBoardFetched() {
         _boardFetchStatus.value = STATUS_SUCCESS
-        initNumbers()
+        _initialIndexes.value = board.getInitialIndexes()
+        _numbers.value = board.getAllNumbers()
+        board.addOnBoardStateChangedObserver(this)
     }
 
-    private fun initNumbers() {
-        for (row in 0 until board.size) {
-            for (column in 0 until board.size) {
-                val number = board.getCell(row, column).number
-                _numbers.value?.add(number)
-                if (number != EMPTY_CELL) _initialIndexes.value?.add(getIndex(row, column))
-            }
-        }
-        _initialIndexes.notifyObservers()
-        _numbers.notifyObservers()
+    fun onCellClicked(row: Int, column: Int) {
+        currentIndex = getIndex(row, column)
+        _selectedCell.value = Pair(row, column)
     }
 
     private fun getIndex(row: Int, column: Int) = board.size * row + column
 
-    fun onCellClicked(row: Int, column: Int) {
-        selectedRow = row
-        selectedColumn = column
-        _selectedCell.value = Pair(row, column)
+    fun onNumberClicked(number: Int) {
+        if (currentIndex == NONE_SELECTED) return
+        if (isNotingActive.value == true) board.addNote(currentIndex, number)
+        else addNumber(number)
     }
 
-    fun onNumberClicked(number: Int) {
-        if (selectedRow == NONE_SELECTED || selectedColumn == NONE_SELECTED) return
-        if (isNotingActive.value == true) addNote(number)
-        else addNumber(number)
+    private fun addNumber(number: Int) {
+        board.setNumber(currentIndex, number)
+        movesIndexes.push(currentIndex)
+        _isUndoEnabled.value = true
+        if (board.isFull()) _isBoardFull.value = true
     }
 
     fun onNotesClicked() { _isNotingActive.value = !isNotingActive.value!! }
@@ -123,12 +120,13 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
     fun onUndoClicked() {
         val lastIndex = movesIndexes.last()
         movesIndexes.pop()
-        removeNumber(lastIndex)
+        board.removeNumber(lastIndex)
         if (movesIndexes.empty()) _isUndoEnabled.value = false
     }
 
     fun onCheckClicked() {
-        Timber.d("Check clicked")
+        if (board.isSolvedCorrectly()) _message.value = "You won!"
+        else _message.value = "Check again!"
     }
 
     fun onTryAgainClicked() { fetchBoard() }
@@ -138,25 +136,12 @@ class GameViewModel(private val difficulty: String) : ViewModel() {
         viewModelJob.cancel()
     }
 
-
-    private fun addNumber(number: Int) {
-        val index = getIndex(selectedRow, selectedColumn)
-        board.getCell(index).number = number
-        movesIndexes.push(index)
-        _numbers.value?.set(index, number)
-        _numbers.notifyObservers()
-        _isUndoEnabled.value = true
+    override fun onNumbersStateChanged(numbers: List<Int>) {
+        _isBoardFull.value = board.isFull()
+        _numbers.value = numbers
     }
 
-    private fun removeNumber(index: Int) {
-        board.getCell(index).number = EMPTY_CELL
-        _numbers.value?.set(index, EMPTY_CELL)
-        _numbers.notifyObservers()
+    override fun onNotesStateChanged(notes: List<Set<Int>>) {
+        TODO("Not yet implemented")
     }
-
-    private fun addNote(number: Int) {}
-}
-
-fun <T> MutableLiveData<T>.notifyObservers() {
-    this.value = this.value
 }

@@ -5,14 +5,13 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import timber.log.Timber
 import java.lang.IllegalArgumentException
 import kotlin.math.floor
 import kotlin.math.min
 import kotlin.math.sqrt
 
 private const val NONE_SELECTED = -1
-private const val EMPTY_CELL = 0
+private const val EMPTY_CELL_DEFAULT = 0
 private const val BOARD_SIZE_DEFAULT = 9
 private const val BORDER_WIDTH_MIN = 2f
 private const val BORDER_WIDTH_MAX = 8f
@@ -53,11 +52,12 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
         }
     private var internalLineWidthPx = borderLineWidthPx / 2
 
+    var emptyCellValue = EMPTY_CELL_DEFAULT
     private var selectedRow = NONE_SELECTED
     private var selectedColumn = NONE_SELECTED
 
-    private val numbers = mutableListOf<Int>()
     private val initialIndexes = mutableListOf<Int>()
+    private val numbers = mutableListOf<Int>()
     private val notes = mutableListOf<MutableSet<Int>>()
 
     private val borderLinePaint = Paint().apply {
@@ -146,7 +146,7 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
 
     private fun drawNumbers(canvas: Canvas) {
         for ((index, number) in numbers.withIndex()) {
-            if (number != EMPTY_CELL) {
+            if (number != emptyCellValue) {
                 val paint = if (initialIndexes.contains(index)) initialNumberPaint else addedNumberPaint
                 val numberString = numbers[index].toString()
                 val bounds = Rect()

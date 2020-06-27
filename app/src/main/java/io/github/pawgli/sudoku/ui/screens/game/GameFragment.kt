@@ -5,6 +5,7 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -46,6 +47,7 @@ class GameFragment : Fragment() {
         observeSelectedCell()
         observeInitialIndexes()
         observeNumbers()
+        observeMessage()
     }
 
     private fun observeBoardFetchStatus() {
@@ -124,5 +126,10 @@ class GameFragment : Fragment() {
                 }
             }
         )
+    }
+
+    private fun observeMessage() {
+        viewModel.message.observe(viewLifecycleOwner,
+            Observer { Toast.makeText(activity, it, Toast.LENGTH_SHORT).show() })
     }
 }
