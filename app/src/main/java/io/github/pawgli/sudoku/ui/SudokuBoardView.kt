@@ -57,6 +57,7 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     private var selectedColumn = NONE_SELECTED
 
     private val initialIndexes = mutableListOf<Int>()
+    private val highlightedNumbersIndexes = mutableListOf<Int>()
     private val numbers = mutableListOf<Int>()
     private val notes = mutableListOf<MutableSet<Int>>()
 
@@ -82,18 +83,12 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
         color = Color.parseColor("#FBFBCA")
     }
 
-    private val initialNumberPaint = Paint(). apply {
-        style = Paint.Style.FILL_AND_STROKE
-        color = Color.BLACK
-        textSize = 15 * resources.displayMetrics.density
-        textAlign = Paint.Align.CENTER
-        typeface = Typeface.SANS_SERIF
-        isAntiAlias = true
-    }
+    private val numberColor: Int = Color.BLACK
+    private val highlightedNumberColor = Color.RED
 
-    private val addedNumberPaint = Paint(). apply {
+    private val numberPaint = Paint(). apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = Color.GRAY
+        color = numberColor
         textSize = 15 * resources.displayMetrics.density
         textAlign = Paint.Align.CENTER
         typeface = Typeface.SANS_SERIF
@@ -107,8 +102,7 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
 
     override fun onDraw(canvas: Canvas) {
         cellSizePx = (width - (2 * borderLineWidthPx)) / boardSize
-        initialNumberPaint.textSize = cellSizePx * .7f
-        addedNumberPaint.textSize = cellSizePx * .7f
+        numberPaint.textSize = cellSizePx * .7f
         fillCells(canvas)
         drawNumbers(canvas)
         drawBoard(canvas)
@@ -147,16 +141,25 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     private fun drawNumbers(canvas: Canvas) {
         for ((index, number) in numbers.withIndex()) {
             if (number != emptyCellValue) {
-                val paint = if (initialIndexes.contains(index)) initialNumberPaint else addedNumberPaint
+                updateNumberPaint(index)
                 val numberString = numbers[index].toString()
                 val bounds = Rect()
-                paint.getTextBounds(numberString, 0, numberString.length, bounds)
+                numberPaint.getTextBounds(numberString, 0, numberString.length, bounds)
                 val textHeight = bounds.height()
                 val x = (getColumn(index) * cellSizePx + borderLineWidthPx) + cellSizePx / 2
                 val y = (getRow(index) * cellSizePx + borderLineWidthPx) + cellSizePx / 2 + textHeight / 2
-                canvas.drawText(numberString, x, y, paint)
+                canvas.drawText(numberString, x, y, numberPaint)
             }
         }
+    }
+
+    private fun updateNumberPaint(numberIndex: Int) {
+        numberPaint.color =
+            if (highlightedNumbersIndexes.contains(numberIndex)) highlightedNumberColor
+            else numberColor
+        numberPaint.alpha =
+            if (initialIndexes.contains(numberIndex)) 255
+            else 150
     }
 
     private fun getRow(cellIndex: Int) = cellIndex / boardSize
@@ -233,6 +236,13 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     fun setInitialIndexes(indexes: List<Int>) {
         initialIndexes.clear()
         initialIndexes.addAll(indexes)
+        invalidate()
+    }
+
+    fun setHighlightedNumbersIndexes(indexes: List<Int>) {
+        highlightedNumbersIndexes.clear()
+        highlightedNumbersIndexes.addAll(indexes)
+        invalidate()
     }
 
     fun setNumbers(numbers: List<Int>) {

@@ -14,6 +14,39 @@ class Board (
     @IgnoredOnParcel
     private val onBoardStateChangedObservers = mutableListOf<OnBoardStateChanged>()
 
+    fun setNumber(index: Int, number: Int) {
+        val previousValue = cells[index].number
+        if (!cells[index].isInitial && previousValue != number) {
+            cells[index].number = number
+            notifyNumberChanged(index, previousValue)
+        }
+    }
+
+    fun setNumber(row: Int, column: Int, number: Int) {
+        val index = getIndex(row, column)
+        setNumber(index, column)
+    }
+
+    fun removeNumber(index: Int) {
+        val previousValue = cells[index].number
+        if (previousValue != EMPTY_CELL && !cells[index].isInitial) {
+            cells[index].number = EMPTY_CELL
+            notifyNumberChanged(index, previousValue)
+        }
+    }
+
+    fun removeNumber(row: Int, column: Int) {
+        removeNumber(getIndex(row, column))
+    }
+
+    fun addNote(index: Int, note: Int) {
+
+    }
+
+    fun addNote(row: Int, column: Int, note: Int) {
+
+    }
+
     fun getCell(index: Int) = cells[index]
 
     fun getCell(row: Int, column: Int) = cells[getIndex(row, column)]
@@ -38,35 +71,15 @@ class Board (
         return initialIndexes
     }
 
-    fun setNumber(index: Int, number: Int) {
-        if (!cells[index].isInitial && cells[index].number != number) {
-            cells[index].number = number
-            notifyNumbersChanged()
+    fun getIndexesWithSameNumber(index: Int): List<Int> {
+        val number = cells[index].number
+        val indexes = mutableListOf<Int>()
+        if (number != EMPTY_CELL) {
+            cells.forEachIndexed() {
+                currentIndex, element -> if (element.number == number) indexes.add(currentIndex)
+            }
         }
-    }
-
-    fun setNumber(row: Int, column: Int, number: Int) {
-        val index = getIndex(row, column)
-        setNumber(index, column)
-    }
-
-    fun removeNumber(index: Int) {
-        if (cells[index].number != EMPTY_CELL) {
-            cells[index].number = EMPTY_CELL
-            notifyNumbersChanged()
-        }
-    }
-
-    fun removeNumber(row: Int, column: Int) {
-        removeNumber(getIndex(row, column))
-    }
-
-    fun addNote(index: Int, note: Int) {
-
-    }
-
-    fun addNote(row: Int, column: Int, note: Int) {
-
+        return indexes
     }
 
     fun clear() {
@@ -76,8 +89,7 @@ class Board (
                 // TODO: clear notes
             }
         }
-        notifyNumbersChanged()
-        notifyNotesChanged()
+        notifyBoardCleared()
     }
 
     fun isFull(): Boolean {
@@ -97,15 +109,21 @@ class Board (
         onBoardStateChangedObservers.remove(observer)
     }
 
-    private fun notifyNumbersChanged() {
+    private fun notifyNumberChanged(index: Int, previousValue: Int) {
         onBoardStateChangedObservers.forEach {
-            it.onNumbersStateChanged(getAllNumbers())
+            it.onNumberChanged(index, previousValue)
+        }
+    }
+
+    private fun notifyBoardCleared() {
+        onBoardStateChangedObservers.forEach {
+            it.onBoardCleared()
         }
     }
 
     private fun notifyNotesChanged() {
         onBoardStateChangedObservers.forEach {
-            it.onNotesStateChanged(getAllNotes())
+            it.onNotesStateChanged()
         }
     }
 
@@ -169,6 +187,7 @@ class Board (
 }
 
 interface OnBoardStateChanged {
-    fun onNumbersStateChanged(numbers: List<Int>)
-    fun onNotesStateChanged(notes: List<Set<Int>>)
+    fun onNumberChanged(index: Int, previousValue: Int)
+    fun onBoardCleared()
+    fun onNotesStateChanged()
 }

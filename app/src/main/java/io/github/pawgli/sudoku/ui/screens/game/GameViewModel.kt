@@ -27,7 +27,8 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     lateinit var board: Board
         private set
 
-    private val movesIndexes = Stack<Int>()  // TODO: Hold pairs <index, value> => index / old value?
+    private val moves = Stack<Pair<Int, Int>>()
+    private var isRestoringPreviousState = false
     private var currentIndex = NONE_SELECTED
 
     private val _boardFetchStatus = MutableLiveData<String>()
@@ -57,6 +58,10 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     private val _initialIndexes = MutableLiveData<List<Int>>()
     val initialIndexes: LiveData<List<Int>>
         get() = _initialIndexes
+
+    private val _highlightedNumbersIndexes = MutableLiveData<List<Int>>()
+    val highlightedNumbersIndexes: LiveData<List<Int>>
+        get() = _highlightedNumbersIndexes
 
     private val _message = MutableLiveData<String>()
     val message: LiveData<String>
@@ -98,6 +103,7 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     fun onCellClicked(row: Int, column: Int) {
         currentIndex = getIndex(row, column)
         _selectedCell.value = Pair(row, column)
+        _highlightedNumbersIndexes.value = board.getIndexesWithSameNumber(currentIndex)
     }
 
     private fun getIndex(row: Int, column: Int) = board.size * row + column
@@ -110,7 +116,6 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
 
     private fun addNumber(number: Int) {
         board.setNumber(currentIndex, number)
-        movesIndexes.push(currentIndex)
         _isUndoEnabled.value = true
         if (board.isFull()) _isBoardFull.value = true
     }
@@ -118,10 +123,11 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     fun onNotesClicked() { _isNotingActive.value = !isNotingActive.value!! }
 
     fun onUndoClicked() {
-        val lastIndex = movesIndexes.last()
-        movesIndexes.pop()
-        board.removeNumber(lastIndex)
-        if (movesIndexes.empty()) _isUndoEnabled.value = false
+        isRestoringPreviousState = true
+        val lastMove = moves.last()
+        moves.pop()
+        board.setNumber(lastMove.first, lastMove.second)
+        if (moves.empty()) _isUndoEnabled.value = false
     }
 
     fun onCheckClicked() {
@@ -136,12 +142,20 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
         viewModelJob.cancel()
     }
 
-    override fun onNumbersStateChanged(numbers: List<Int>) {
+    override fun onNumberChanged(index: Int, previousValue: Int) {
         _isBoardFull.value = board.isFull()
-        _numbers.value = numbers
+        _numbers.value = board.getAllNumbers()
+        _highlightedNumbersIndexes.value = board.getIndexesWithSameNumber(currentIndex)
+        if (isRestoringPreviousState) isRestoringPreviousState = false
+        else moves.push(Pair(index, previousValue))
     }
 
-    override fun onNotesStateChanged(notes: List<Set<Int>>) {
+    override fun onBoardCleared() {
+        _isBoardFull.value = false
+        _numbers.value = board.getAllNumbers()
+    }
+
+    override fun onNotesStateChanged() {
         TODO("Not yet implemented")
     }
 }

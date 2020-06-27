@@ -47,6 +47,7 @@ class GameFragment : Fragment() {
         observeSelectedCell()
         observeInitialIndexes()
         observeNumbers()
+        observeHighlightedNumbersIndexes()
         observeMessage()
     }
 
@@ -118,7 +119,7 @@ class GameFragment : Fragment() {
     private fun observeNumbers() {
         viewModel.numbers.observe(viewLifecycleOwner,
             Observer {
-                if (it == null || it.size == 0) return@Observer
+                if (it == null || it.isEmpty()) return@Observer
                 try {
                     boardView.setNumbers(it)
                 } catch (e: IllegalArgumentException) {
@@ -126,6 +127,11 @@ class GameFragment : Fragment() {
                 }
             }
         )
+    }
+
+    private fun observeHighlightedNumbersIndexes() {
+        viewModel.highlightedNumbersIndexes.observe(viewLifecycleOwner,
+        Observer { boardView.setHighlightedNumbersIndexes(it) })
     }
 
     private fun observeMessage() {
