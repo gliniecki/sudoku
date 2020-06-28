@@ -1,7 +1,7 @@
 package io.github.pawgli.sudoku.models
 
 import android.os.Parcelable
-import io.github.pawgli.sudoku.ui.sqrt
+import io.github.pawgli.sudoku.utils.isSudokuSolvedCorrectly
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
@@ -17,17 +17,13 @@ class Board (
     fun setNumber(index: Int, number: Int) {
         val previousValue = cells[index].number
         if (!cells[index].isInitial && previousValue != number) {
+            removeNotes(index)
             cells[index].number = number
             notifyNumberChanged(index, previousValue)
         }
     }
 
-    fun setNumber(row: Int, column: Int, number: Int) {
-        val index = getIndex(row, column)
-        setNumber(index, column)
-    }
-
-    fun removeNumber(index: Int) {
+    private fun removeNumber(index: Int) {
         val previousValue = cells[index].number
         if (previousValue != EMPTY_CELL && !cells[index].isInitial) {
             cells[index].number = EMPTY_CELL
@@ -35,23 +31,20 @@ class Board (
         }
     }
 
-    fun removeNumber(row: Int, column: Int) {
-        removeNumber(getIndex(row, column))
-    }
-
     fun addNote(index: Int, note: Int) {
+        val cell = cells[index]
+        if (note in 1..size && !cell.notes.contains(note) && !cell.isInitial) {
+            removeNumber(index)
+            cells[index].notes.add(note)
+            notifyNotesChanged()
+        }
+    }
+
+    private fun removeNotes(index: Int) {
 
     }
 
-    fun addNote(row: Int, column: Int, note: Int) {
-
-    }
-
-    fun getCell(index: Int) = cells[index]
-
-    fun getCell(row: Int, column: Int) = cells[getIndex(row, column)]
-
-    private fun getIndex(row: Int, column: Int) = row * size + column
+    fun getNumber(index: Int) = cells[index].number
 
     fun getAllNumbers(): List<Int> {
         val numbers = mutableListOf<Int>()
@@ -60,6 +53,8 @@ class Board (
         }
         return numbers
     }
+
+    fun getNotes(index: Int) = cells[index].notes
 
     fun getAllNotes(): List<Set<Int>> { return mutableListOf() }
 
@@ -86,10 +81,16 @@ class Board (
         cells.forEach {
             if (!it.isInitial) {
                 it.number = EMPTY_CELL
+                it.notes.clear()
                 // TODO: clear notes
             }
         }
         notifyBoardCleared()
+    }
+
+    fun clearCell(index: Int) {
+        removeNumber(index)
+        removeNotes(index)
     }
 
     fun isFull(): Boolean {
@@ -97,6 +98,11 @@ class Board (
             if (it.number == EMPTY_CELL) return false
         }
         return true
+    }
+
+    fun isSolvedCorrectly(): Boolean {
+        if (!isFull()) return false
+        return isSudokuSolvedCorrectly(getAllNumbers())
     }
 
     fun addOnBoardStateChangedObserver(observer: OnBoardStateChanged) {
@@ -127,63 +133,7 @@ class Board (
         }
     }
 
-    fun isSolvedCorrectly(): Boolean {
-        if (!isFull()) return false
-        return  hasDuplicatesHorizontally() && hasDuplicatesVertically() && hasDuplicatesInBoxes()
-    }
 
-    private fun hasDuplicatesHorizontally(): Boolean {
-        val numbers = mutableListOf<Int>()
-        val firstIndexOfLastRow = size * (size - 1)
-        for (row in 0..firstIndexOfLastRow step size) {
-            numbers.clear()
-            for (currentIndex in row until row + size) {
-                val currentNumber = cells[currentIndex].number
-                if (numbers.contains(currentNumber)) return false
-                else numbers.add(currentNumber)
-            }
-        }
-        return true
-    }
-
-    private fun hasDuplicatesVertically(): Boolean {
-        val numbers = mutableListOf<Int>()
-        for (column in 0 until size) {
-            numbers.clear()
-            val lastIndexInColumn = column + size * (size - 1)
-            for (index in column..lastIndexInColumn step size) {
-                val currentNumber = cells[index].number
-                if (numbers.contains(currentNumber)) return false
-                else numbers.add(currentNumber)
-            }
-        }
-        return true
-    }
-
-    private fun hasDuplicatesInBoxes(): Boolean {
-        val numbers = mutableListOf<Int>()
-        val boxSize = size.sqrt()
-        val lastBoxFirstIndex = size * (size - boxSize) + size - boxSize
-        var currentBoxFirstIndex = 0
-        var iterationCounter = 0
-        while (currentBoxFirstIndex <= lastBoxFirstIndex) {
-            numbers.clear()
-            for (columnFirstIndex in currentBoxFirstIndex until currentBoxFirstIndex + boxSize) {
-                val columnLastIndex = columnFirstIndex + size * (boxSize - 1)
-                for (currentIndex in columnFirstIndex..columnLastIndex step size) {
-                    val currentNumber = cells[currentIndex].number
-                    if (numbers.contains(currentNumber)) return false
-                    else numbers.add(currentNumber)
-                }
-            }
-            val nextStep = when (++iterationCounter % boxSize) {
-                0 -> size * (boxSize - 1) + boxSize
-                else -> boxSize
-            }
-            currentBoxFirstIndex += nextStep
-        }
-        return true
-    }
 }
 
 interface OnBoardStateChanged {

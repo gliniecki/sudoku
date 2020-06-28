@@ -43,7 +43,7 @@
             android:onClick="@{() -> viewModel.onTryAgainClicked()}"
             android:text="Try Again"
             app:layout_constraintTop_toBottomOf="@id/errorMessageDisplay"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/clearButtons"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -174,7 +174,7 @@
                 android:layout_row="3"
                 android:layout_column="1"
                 android:theme="@style/GameButton"
-                android:textColor="@{viewModel.isNotingActive() ? @color/textYellow : @color/textWhite}"
+                android:textColor="@{viewModel.isNotingActive() ? @color/colorActiveButtonText : @color/textWhite}"
                 android:onClick="@{() -> viewModel.onNotesClicked()}"
                 android:text="NOTES" />
 
@@ -190,6 +190,35 @@
                 android:text="CHECK" />
 
         </GridLayout>
+
+
+        <LinearLayout
+            android:id="@+id/clearButtons"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/gameButtons"
+            app:layout_constraintStart_toStartOf="@id/gameButtons"
+            app:layout_constraintEnd_toEndOf="@id/gameButtons">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:theme="@style/GameButton"
+            android:onClick="@{() -> viewModel.onClearCellClicked()}"
+            android:text="CLEAR CELL" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:theme="@style/GameButton"
+            android:onClick="@{() -> viewModel.onClearBoardClicked()}"
+            android:text="CLEAR BOARD" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

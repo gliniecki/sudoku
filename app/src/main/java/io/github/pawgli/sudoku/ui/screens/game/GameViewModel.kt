@@ -116,23 +116,27 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
 
     private fun addNumber(number: Int) {
         board.setNumber(currentIndex, number)
-        _isUndoEnabled.value = true
         if (board.isFull()) _isBoardFull.value = true
     }
 
     fun onNotesClicked() { _isNotingActive.value = !isNotingActive.value!! }
 
     fun onUndoClicked() {
-        isRestoringPreviousState = true
-        val lastMove = moves.last()
-        moves.pop()
-        board.setNumber(lastMove.first, lastMove.second)
-        if (moves.empty()) _isUndoEnabled.value = false
+        restoreLastMove()
     }
 
     fun onCheckClicked() {
         if (board.isSolvedCorrectly()) _message.value = "You won!"
         else _message.value = "Check again!"
+    }
+
+    fun onClearCellClicked() {
+        // TODO: Alert [You will lose your progress ok / cancel]
+        board.clearCell(currentIndex)
+    }
+
+    fun onClearBoardClicked() {
+        board.clear()
     }
 
     fun onTryAgainClicked() { fetchBoard() }
@@ -147,12 +151,31 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
         _numbers.value = board.getAllNumbers()
         _highlightedNumbersIndexes.value = board.getIndexesWithSameNumber(currentIndex)
         if (isRestoringPreviousState) isRestoringPreviousState = false
-        else moves.push(Pair(index, previousValue))
+        else addMove(index, previousValue)
     }
 
     override fun onBoardCleared() {
         _isBoardFull.value = false
+        clearMoves()
         _numbers.value = board.getAllNumbers()
+    }
+
+    private fun addMove(index: Int, number: Int) {
+        moves.push(Pair(index, number))
+        _isUndoEnabled.value = true
+    }
+
+    private fun restoreLastMove() {
+        isRestoringPreviousState = true
+        val lastMove = moves.last()
+        moves.pop()
+        if (moves.empty()) _isUndoEnabled.value = false
+        board.setNumber(lastMove.first, lastMove.second)
+    }
+
+    private fun clearMoves() {
+        moves.clear()
+        _isUndoEnabled.value = false
     }
 
     override fun onNotesStateChanged() {

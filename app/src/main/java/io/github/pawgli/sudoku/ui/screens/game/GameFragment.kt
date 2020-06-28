@@ -7,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.github.pawgli.sudoku.R
 import io.github.pawgli.sudoku.databinding.FragmentGameBinding
 import kotlinx.android.synthetic.main.fragment_game.*
-import timber.log.Timber
 import java.lang.IllegalArgumentException
 
 class GameFragment : Fragment() {
@@ -86,17 +86,33 @@ class GameFragment : Fragment() {
     private fun initGameLayout() {
         binding.boardView.boardSize = viewModel.board.size
         setGameLayoutVisibility(isVisible = true)
-        observeBoard()
+        setUpGameBoard()
     }
 
     private fun setGameLayoutVisibility(isVisible: Boolean) {
         val visibility = if (isVisible) View.VISIBLE else View.GONE
         binding.boardView.visibility = visibility
         binding.gameButtons.visibility = visibility
+        binding.clearButtons.visibility = visibility
         if (isVisible) {
-
             setLoadingLayoutVisibility(isVisible = false)
             setFetchFailureLayoutVisibility(isVisible = false)
+        }
+    }
+
+    private fun setUpGameBoard() {
+        setBoardParameters()
+        observeBoard()
+    }
+
+    private fun setBoardParameters() {
+        context?.let {
+            boardView.selectedCellColor =
+                ContextCompat.getColor(it, R.color.colorActiveCell)
+            boardView.highlightedCellColor =
+                ContextCompat.getColor(it, R.color.colorHighlightedCell)
+            boardView.highlightedNumberColor =
+                ContextCompat.getColor(it, R.color.colorHighlightedNumber)
         }
     }
 

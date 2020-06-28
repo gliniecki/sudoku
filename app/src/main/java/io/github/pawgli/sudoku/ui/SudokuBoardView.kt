@@ -5,16 +5,22 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import io.github.pawgli.sudoku.utils.isPerfectSquare
+import io.github.pawgli.sudoku.utils.sqrt
 import java.lang.IllegalArgumentException
-import kotlin.math.floor
 import kotlin.math.min
-import kotlin.math.sqrt
 
 private const val NONE_SELECTED = -1
 private const val EMPTY_CELL_DEFAULT = 0
+
 private const val BOARD_SIZE_DEFAULT = 9
 private const val BORDER_WIDTH_MIN = 2f
 private const val BORDER_WIDTH_MAX = 8f
+
+private const val INITIAL_ALPHA = 255
+private const val ADDED_ALPHA = 140
+private const val SELECTED_CELL_ALPHA = 140
+private const val HIGHLIGHTED_CELL_ALPHA = 70
 
 class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
@@ -49,6 +55,8 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
             if (value < BORDER_WIDTH_MIN) field = BORDER_WIDTH_MIN
             if (value > BORDER_WIDTH_MAX) field = BORDER_WIDTH_MAX
             internalLineWidthPx = value / 2
+            borderLinePaint.strokeWidth = borderLineWidthPx
+            internalLinePaint.strokeWidth = internalLineWidthPx
         }
     private var internalLineWidthPx = borderLineWidthPx / 2
 
@@ -61,30 +69,29 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     private val numbers = mutableListOf<Int>()
     private val notes = mutableListOf<MutableSet<Int>>()
 
+    var selectedCellColor =  Color.DKGRAY
+    var highlightedCellColor = Color.GRAY
+    var gridColor = Color.BLACK
+    var numberColor = Color.BLACK
+    var highlightedNumberColor = Color.RED
+
+    private val cellPaint = Paint().apply {
+        style = Paint.Style.FILL
+        color = highlightedCellColor
+        alpha = HIGHLIGHTED_CELL_ALPHA
+    }
+
     private val borderLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.BLACK
+        color = gridColor
         strokeWidth = borderLineWidthPx
     }
 
     private val internalLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.BLACK
+        color = gridColor
         strokeWidth = borderLineWidthPx / 2
     }
-
-    private val highlightedCellPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.parseColor("#CBFDC8")
-    }
-
-    private val activeCellPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.parseColor("#FBFBCA")
-    }
-
-    private val numberColor: Int = Color.BLACK
-    private val highlightedNumberColor = Color.RED
 
     private val numberPaint = Paint(). apply {
         style = Paint.Style.FILL_AND_STROKE
@@ -119,23 +126,25 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
                         && column / singleBoxSize == selectedColumn / singleBoxSize
 
                 if (isSelectedCell) {
-                    fillCell(canvas, row, column, activeCellPaint)
+                    highlightCell(canvas, row, column, isSelected = true)
                 } else if (isSelectedLine) {
-                    fillCell(canvas, row, column, highlightedCellPaint)
+                    highlightCell(canvas, row, column, isSelected = false)
                 } else if (isSelectedBox) {
-                    fillCell(canvas, row, column, highlightedCellPaint)
+                    highlightCell(canvas, row, column, isSelected = false)
                 }
             }
         }
     }
 
-    private fun fillCell(canvas: Canvas, row: Int, column: Int, paint: Paint) {
+    private fun highlightCell(canvas: Canvas, row: Int, column: Int, isSelected: Boolean) {
+        cellPaint.color = if (isSelected) selectedCellColor else highlightedCellColor
+        cellPaint.alpha = if (isSelected) SELECTED_CELL_ALPHA else HIGHLIGHTED_CELL_ALPHA
         canvas.drawRect(
             column * cellSizePx + borderLineWidthPx,
             row * cellSizePx + borderLineWidthPx,
             (column + 1) * cellSizePx + borderLineWidthPx,
             (row + 1) * cellSizePx + borderLineWidthPx,
-            paint)
+            cellPaint)
     }
 
     private fun drawNumbers(canvas: Canvas) {
@@ -158,8 +167,8 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
             if (highlightedNumbersIndexes.contains(numberIndex)) highlightedNumberColor
             else numberColor
         numberPaint.alpha =
-            if (initialIndexes.contains(numberIndex)) 255
-            else 150
+            if (initialIndexes.contains(numberIndex)) INITIAL_ALPHA
+            else ADDED_ALPHA
     }
 
     private fun getRow(cellIndex: Int) = cellIndex / boardSize
@@ -176,6 +185,7 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
     }
 
     private fun drawBorder(canvas: Canvas) {
+        borderLinePaint.color = gridColor
         val borderWidthCorrection = borderLineWidthPx / 2
         canvas.drawRect(
             0f + borderWidthCorrection,
@@ -191,6 +201,7 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
                 0 -> borderLinePaint
                 else -> internalLinePaint
             }
+            paint.color = gridColor
             val currentPos = i * cellSizePx + borderLineWidthPx
             canvas.drawLine(currentPos, 0f, currentPos, height.toFloat(), paint)
             canvas.drawLine(0f, currentPos, width.toFloat(), currentPos, paint)
@@ -254,12 +265,4 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
             throw IllegalArgumentException("Size of the list must be equal to the number of cells")
         }
     }
-}
-
-fun Int.sqrt(): Int { return sqrt(this.toDouble()).toInt() }
-
-fun Int.isPerfectSquare(): Boolean {
-    val sqrt = sqrt(this.toDouble())
-    val sqrtFloor = floor(sqrt)
-    return sqrt == sqrtFloor
 }

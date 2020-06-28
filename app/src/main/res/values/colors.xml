@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6ab343</color>
-    <color name="colorPrimaryDark">#388310</color>
-    <color name="colorAccent">#6ab343</color>
+    <color name="colorPrimary">#384967</color>
+    <color name="colorPrimaryDark">#28334a</color>
+    <color name="colorAccent">#384967</color>
 
     <color name="textWhite">#f0f0f0</color>
-    <color name="textYellow">#FFFF00</color>
+    <color name="colorActiveButtonText">#e1b7a7</color>
     <color name="colorBackground">#fafafa</color>
 
-    <color name="colorYellowLight">#FBFBCA</color>
-    <color name="colorGreenLight">#CBFDC8</color>
+    <color name="colorActiveCell">#7594b3</color>
+    <color name="colorHighlightedCell">#8ba6c1</color>
+    <color name="colorHighlightedNumber">#c48490</color>
 </resources>
