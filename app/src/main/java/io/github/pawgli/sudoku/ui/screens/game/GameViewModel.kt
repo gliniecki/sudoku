@@ -55,6 +55,10 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     val numbers: LiveData<List<Int>>
         get() = _numbers
 
+    private val _notes = MutableLiveData<Map<Int, Set<Int>>>()
+    val notes: LiveData<Map<Int, Set<Int>>>
+        get() = _notes
+
     private val _initialIndexes = MutableLiveData<List<Int>>()
     val initialIndexes: LiveData<List<Int>>
         get() = _initialIndexes
@@ -179,6 +183,6 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     }
 
     override fun onNotesStateChanged() {
-        TODO("Not yet implemented")
+        _notes.value = board.getAllNotes()
     }
 }

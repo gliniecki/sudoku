@@ -79,19 +79,40 @@ class BoardTest {
     }
 
     @Test
-    fun setNumberTest_setValueOfCellContainingNotes() {}
+    fun setNumberTest_setValueOfCellContainingNotes() {
+        val index = 0
+        val note = 1
+        val number = 2
+        board.addNote(index, note)
+        board.setNumber(index, number)
+        assertEquals(board.getNumber(index), number)
+    }
 
     @Test
-    fun addNoteTest_addNoteToEmptyCell() {}
+    fun addNoteTest_addNoteToEmptyCell() {
+        val index = 0
+        val note = 1
+        board.addNote(index, note)
+        assertTrue(board.getNotes(index).contains(note))
+    }
 
     @Test
-    fun addNoteTest_addNoteToCellContainingSameNote() {}
+    fun addNoteTest_addNoteToCellContainingAddedNumber() {
+        val index = 0
+        val number = 1
+        val note = 2
+        board.setNumber(index, number)
+        board.addNote(index, note)
+        assertTrue(board.getNotes(index).contains(note))
+    }
 
     @Test
-    fun addNoteTest_addNoteToCellContainingAddedNumber() {}
-
-    @Test
-    fun addNoteTest_addNoteToCellContainingInitialNumber() {}
+    fun addNoteTest_addNoteToCellContainingInitialNumber() {
+        val index = 2
+        val note = 9
+        board.addNote(index, note)
+        assertFalse(board.getNotes(index).contains(note))
+    }
 
     @Test
     fun getNumberTest_emptyCell() {
@@ -105,11 +126,25 @@ class BoardTest {
 
     @Test
     fun getNumberTest_cellContainingNotes() {
-        // TODO: add notes, check if equals empty_cell
+        val index = 0
+        val note = 1
+        board.addNote(index, note)
+        assertEquals(board.getNumber(index), EMPTY_CELL)
     }
 
     @Test
-    fun getAllNotesTest() { }
+    fun getAllNotesTest() {
+        val index1 = 0
+        val index2 = 1
+        val noteSet1 = setOf<Int>(2, 3, 6)
+        val noteSet2 = setOf<Int>(4, 1, 7)
+        val notes = mutableMapOf<Int, Set<Int>>()
+        notes[index1] = noteSet1
+        notes[index2] = noteSet2
+        noteSet1.forEach { board.addNote(index1, it) }
+        noteSet2.forEach { board.addNote(index2, it) }
+        assertTrue(board.getAllNotes().equals(notes))
+    }
 
     @Test
     fun getInitialIndexesTest() {
@@ -132,7 +167,10 @@ class BoardTest {
 
     @Test
     fun getIndexesWithSameNumberTest_cellContainingNotes() {
-        // TODO: check if the list is empty
+        val index = 0
+        val note = 1
+        board.addNote(index, note)
+        assertTrue(board.getIndexesWithSameNumber(index).isEmpty())
     }
 
     @Test
@@ -149,7 +187,13 @@ class BoardTest {
     }
 
     @Test
-    fun clearBoardTest_notesAdded() { }
+    fun clearBoardTest_notesAdded() {
+        val index = 0
+        val note = 1
+        board.addNote(index, note)
+        board.clear()
+        assertTrue(board.getNotes(index).isEmpty())
+    }
 
     @Test
     fun clearCellTest_cellContainingNumber() {
@@ -162,7 +206,11 @@ class BoardTest {
 
     @Test
     fun clearCellTest_cellContainingNotes() {
-
+        val index = 0
+        val note = 1
+        board.addNote(index, note)
+        board.clearCell(index)
+        assertTrue(board.getNotes(index).isEmpty())
     }
 
     @Test

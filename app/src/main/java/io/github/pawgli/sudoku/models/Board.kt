@@ -41,7 +41,8 @@ class Board (
     }
 
     private fun removeNotes(index: Int) {
-
+        cells[index].notes.clear()
+        notifyNotesChanged()
     }
 
     fun getNumber(index: Int) = cells[index].number
@@ -56,12 +57,19 @@ class Board (
 
     fun getNotes(index: Int) = cells[index].notes
 
-    fun getAllNotes(): List<Set<Int>> { return mutableListOf() }
+    fun getAllNotes(): Map<Int, Set<Int>> {
+        val notes = mutableMapOf<Int, Set<Int>>()
+            cells.forEachIndexed {
+                index, cell ->
+                    if (cell.notes.isNotEmpty()) notes[index] = cell.notes
+            }
+        return notes
+    }
 
     fun getInitialIndexes(): List<Int> {
         val initialIndexes = mutableListOf<Int>()
         cells.forEachIndexed {
-                index, element -> if (element.isInitial) initialIndexes.add(index)
+                index, cell -> if (cell.isInitial) initialIndexes.add(index)
         }
         return initialIndexes
     }
@@ -82,7 +90,6 @@ class Board (
             if (!it.isInitial) {
                 it.number = EMPTY_CELL
                 it.notes.clear()
-                // TODO: clear notes
             }
         }
         notifyBoardCleared()

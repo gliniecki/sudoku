@@ -47,6 +47,7 @@ class GameFragment : Fragment() {
         observeSelectedCell()
         observeInitialIndexes()
         observeNumbers()
+        observeNotes()
         observeHighlightedNumbersIndexes()
         observeMessage()
     }
@@ -142,6 +143,12 @@ class GameFragment : Fragment() {
                     e.printStackTrace()
                 }
             }
+        )
+    }
+
+    private fun observeNotes() {
+        viewModel.notes.observe(viewLifecycleOwner,
+            Observer { boardView.setNotes(it) }
         )
     }
 

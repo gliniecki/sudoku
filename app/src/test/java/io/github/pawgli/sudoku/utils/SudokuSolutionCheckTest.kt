@@ -6,7 +6,7 @@ import org.junit.Test
 
 class SudokuSolutionCheckTest {
 
-    val boardSize = 9
+    private val boardSize = 9
 
     private val numbersCorrectlySolved = listOf<Int>(
         6, 4, 1, 9, 8, 5, 7, 2, 3,
