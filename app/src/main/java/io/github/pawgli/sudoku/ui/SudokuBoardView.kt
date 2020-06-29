@@ -169,6 +169,15 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
         }
     }
 
+    private fun updateNumberPaint(numberIndex: Int) {
+        numberPaint.color =
+            if (highlightedNumbersIndexes.contains(numberIndex)) highlightedNumberColor
+            else numberColor
+        numberPaint.alpha =
+            if (initialIndexes.contains(numberIndex)) INITIAL_ALPHA
+            else ADDED_ALPHA
+    }
+
     private fun drawNumber(index: Int) {
         val numberString = numbers[index].toString()
         val bounds = Rect()
@@ -188,24 +197,13 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
         return (getRow(index) * cellSizePx + borderLineWidthPx) + cellSizePx / 2 + numberHeight / 2
     }
 
-    private fun updateNumberPaint(numberIndex: Int) {
-        numberPaint.color =
-            if (highlightedNumbersIndexes.contains(numberIndex)) highlightedNumberColor
-            else numberColor
-        numberPaint.alpha =
-            if (initialIndexes.contains(numberIndex)) INITIAL_ALPHA
-            else ADDED_ALPHA
-    }
+    private fun getColumn(cellIndex: Int) = cellIndex % boardSize
 
     private fun getRow(cellIndex: Int) = cellIndex / boardSize
 
-    private fun getColumn(cellIndex: Int) = cellIndex % boardSize
-
     private fun drawNotes() {
-        Timber.d("Draw notes")
         notesPaint.color = numberColor
         for((index, notesSet) in notes) {
-            Timber.d("index: $index, notesSet: $notesSet")
             notesSet.forEach { drawNote(index, it) }
         }
     }
@@ -223,21 +221,19 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
 
     private fun getNotePositionX(index: Int, note: Int): Float {
         val columnInCell = (note - 1) % singleBoxSize
-        val xPos = getColumn(index) * cellSizePx
+        return (getColumn(index) * cellSizePx
                 + borderLineWidthPx
                 + columnInCell * noteSizePx
-                + noteSizePx / 2
-        return xPos
+                + noteSizePx / 2)
     }
 
     private fun getNotePositionY(index: Int, note: Int, noteHeight: Int): Float {
         val rowInCell = (note - 1) / singleBoxSize
-        val yPos = getRow(index) * cellSizePx
+        return (getRow(index) * cellSizePx
                 + borderLineWidthPx
                 + rowInCell * noteSizePx
                 + noteSizePx / 2
-                + noteHeight / 2
-        return yPos
+                + noteHeight / 2)
     }
 
     private fun drawBoard() {

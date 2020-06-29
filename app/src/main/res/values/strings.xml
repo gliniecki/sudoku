@@ -1,7 +1,29 @@
 <resources>
+
     <string name="app_name">Sudoku</string>
 
-    <string name="key_mode_easy" translatable="false">easy_mode</string>
-    <string name="key_mode_medium" translatable="false">medium_mode</string>
-    <string name="key_mode_hard" translatable="false">hard_mode</string>
+    <string name="button_label_resume">resume game</string>
+    <string name="button_label_easy">easy</string>
+    <string name="button_label_medium">medium</string>
+    <string name="button_label_difficult">difficult</string>
+    <string name="button_label_exit">easy</string>
+
+    <string name="button_label_undo">undo</string>
+    <string name="button_label_notes">notes</string>
+    <string name="button_label_check">check</string>
+    <string name="button_label_clear_cell">clear cell</string>
+    <string name="button_label_clear_board">clear board</string>
+    <string name="button_label_try_again">try again</string>
+
+    <string name="dialog_title_are_you_sure">Are You sure?</string>
+    <string name="dialog_title_something_wrong">Something\'s wrong</string>
+    <string name="dialog_title_you_won">You won!</string>
+    <string name="dialog_message_lose_progress">You will lose Your progress!</string>
+    <string name="dialog_message_load_new_board">Would You like to load a new board?</string>
+
+    <string name="menu_label_reload">New board</string>
+    <string name="menu_label_Exit">Exit the app</string>
+
+    <string name="message_download_error">Couldn\'t download the board</string>
+
 </resources>

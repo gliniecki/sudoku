@@ -41,12 +41,13 @@ class MainMenuFragment : Fragment() {
     private fun observeChosenOption() {
         viewModel.chosenOption.observe(viewLifecycleOwner,
             Observer {
-                when(it) {
-                    OPTION_NONE -> return@Observer
+                val content = it.getContentIfNotHandled()
+                Timber.d("Content = $content")
+                when(content) {
+                    null -> return@Observer
                     OPTION_EXIT -> closeApp()
-                    else -> openGame(difficulty = it)
+                    else -> openGame(difficulty = content)
                 }
-                viewModel.onChosenOptionHandled()
             }
         )
     }

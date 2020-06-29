@@ -2,9 +2,7 @@ package io.github.pawgli.sudoku.ui.screens.game
 
 import android.os.Bundle
 import android.os.Handler
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -13,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.github.pawgli.sudoku.R
 import io.github.pawgli.sudoku.databinding.FragmentGameBinding
+import io.github.pawgli.sudoku.ui.dialogs.getPosNegDialog
 import kotlinx.android.synthetic.main.fragment_game.*
 import java.lang.IllegalArgumentException
 
@@ -28,6 +27,7 @@ class GameFragment : Fragment() {
         initViewModel()
         setUpBinding()
         observeViewModel()
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -49,7 +49,7 @@ class GameFragment : Fragment() {
         observeNumbers()
         observeNotes()
         observeHighlightedNumbersIndexes()
-        observeMessage()
+        observeDisplayPosNegDialog()
     }
 
     private fun observeBoardFetchStatus() {
@@ -157,8 +157,34 @@ class GameFragment : Fragment() {
         Observer { boardView.setHighlightedNumbersIndexes(it) })
     }
 
-    private fun observeMessage() {
-        viewModel.message.observe(viewLifecycleOwner,
-            Observer { Toast.makeText(activity, it, Toast.LENGTH_SHORT).show() })
+    private fun observeDisplayPosNegDialog() {
+        viewModel.displayPosNegDialog.observe(viewLifecycleOwner,
+            Observer {
+                val dialogParametersResIds = it.getContentIfNotHandled()
+                if (dialogParametersResIds != null) {
+                    val title = getString(dialogParametersResIds.first)
+                    val message = getString(dialogParametersResIds.second)
+                    getPosNegDialog(requireContext(), title, message, it.callback).show()
+                }
+            }
+        )
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_game, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_item_reload -> viewModel.onNewBoardClicked()
+            R.id.menu_item_exit -> closeApp()
+        }
+        return true
+    }
+
+    private fun closeApp() {
+        activity?.moveTaskToBack(true)
+        activity?.finish()
     }
 }

@@ -3,10 +3,13 @@ package io.github.pawgli.sudoku.ui.screens.game
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.github.pawgli.sudoku.R
 import io.github.pawgli.sudoku.models.Board
 import io.github.pawgli.sudoku.models.OnBoardStateChanged
 import io.github.pawgli.sudoku.models.asDomainModel
 import io.github.pawgli.sudoku.network.SudokuApi
+import io.github.pawgli.sudoku.utils.CallbackEvent
+import io.github.pawgli.sudoku.utils.Event
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -67,9 +70,9 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     val highlightedNumbersIndexes: LiveData<List<Int>>
         get() = _highlightedNumbersIndexes
 
-    private val _message = MutableLiveData<String>()
-    val message: LiveData<String>
-        get() = _message
+    private val _displayPosNegDialog = MutableLiveData<CallbackEvent<Pair<Int, Int>>>()
+    val displayPosNegDialog: LiveData<CallbackEvent<Pair<Int, Int>>>
+        get() = _displayPosNegDialog
 
     init {
         initLiveDataObjects()
@@ -101,6 +104,7 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
         _boardFetchStatus.value = STATUS_SUCCESS
         _initialIndexes.value = board.getInitialIndexes()
         _numbers.value = board.getAllNumbers()
+        moves.clear()
         board.addOnBoardStateChangedObserver(this)
     }
 
@@ -114,7 +118,7 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
 
     fun onNumberClicked(number: Int) {
         if (currentIndex == NONE_SELECTED) return
-        if (isNotingActive.value == true) board.addNote(currentIndex, number)
+        if (isNotingActive.value == true) board.changeNote(currentIndex, number)
         else addNumber(number)
     }
 
@@ -130,20 +134,33 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     }
 
     fun onCheckClicked() {
-        if (board.isSolvedCorrectly()) _message.value = "You won!"
-        else _message.value = "Check again!"
+        val titleResId = if (board.isSolvedCorrectly()) {
+            R.string.dialog_title_you_won
+        } else {
+            R.string.dialog_title_something_wrong
+        }
+        val messageResId = R.string.dialog_message_load_new_board
+        showPosNegDialog(titleResId, messageResId) { fetchBoard() }
     }
 
-    fun onClearCellClicked() {
-        // TODO: Alert [You will lose your progress ok / cancel]
-        board.clearCell(currentIndex)
+    private fun showPosNegDialog(titleResId: Int, messageResId: Int, onPositive: () -> Unit) {
+        _displayPosNegDialog.value =
+            CallbackEvent(Pair(titleResId, messageResId)) { onPositive.invoke() }
     }
+
+    fun onClearCellClicked() { board.clearCell(currentIndex) }
 
     fun onClearBoardClicked() {
-        board.clear()
+        val titleId = R.string.dialog_title_are_you_sure
+        val messageId = R.string.dialog_message_lose_progress
+        showPosNegDialog(titleId, messageId) { board.clear() }
     }
 
-    fun onTryAgainClicked() { fetchBoard() }
+    fun onNewBoardClicked() {
+        val titleId = R.string.dialog_title_are_you_sure
+        val messageId = R.string.dialog_message_lose_progress
+        showPosNegDialog(titleId, messageId) { fetchBoard() }
+    }
 
     override fun onCleared() {
         super.onCleared()

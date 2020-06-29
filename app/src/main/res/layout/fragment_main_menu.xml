@@ -21,33 +21,33 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/GameButton"
-            android:text="easy"
-            android:onClick="@{() -> viewModel.onEasyModeClicked()}"/>
+            android:text="@string/button_label_easy"
+            android:onClick="@{() -> viewModel.onEasyModeClicked()}"
+            style="@style/GameButton" />
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:theme="@style/GameButton"
-            android:text="medium"
-            android:onClick="@{() -> viewModel.onMediumModeClicked()}"/>
+            android:text="@string/button_label_medium"
+            android:onClick="@{() -> viewModel.onMediumModeClicked()}"
+            style="@style/GameButton" />
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:theme="@style/GameButton"
-            android:text="hard"
-            android:onClick="@{() -> viewModel.onHardModeClicked()}"/>
+            android:text="@string/button_label_difficult"
+            android:onClick="@{() -> viewModel.onHardModeClicked()}"
+            style="@style/GameButton" />
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:theme="@style/GameButton"
-            android:text="exit"
-            android:onClick="@{() -> viewModel.onExitClicked()}"/>
+            android:text="@string/button_label_exit"
+            android:onClick="@{() -> viewModel.onExitClicked()}"
+            style="@style/GameButton" />
 
     </LinearLayout>
 

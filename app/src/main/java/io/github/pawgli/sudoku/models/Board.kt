@@ -31,11 +31,15 @@ class Board (
         }
     }
 
-    fun addNote(index: Int, note: Int) {
+    fun changeNote(index: Int, note: Int) {
         val cell = cells[index]
-        if (note in 1..size && !cell.notes.contains(note) && !cell.isInitial) {
-            removeNumber(index)
-            cells[index].notes.add(note)
+        if (note in 1..size && !cell.isInitial) {
+            if (cell.notes.contains(note)) {
+                cell.notes.remove(note)
+            } else {
+                removeNumber(index)
+                cells[index].notes.add(note)
+            }
             notifyNotesChanged()
         }
     }

@@ -83,7 +83,7 @@ class BoardTest {
         val index = 0
         val note = 1
         val number = 2
-        board.addNote(index, note)
+        board.changeNote(index, note)
         board.setNumber(index, number)
         assertEquals(board.getNumber(index), number)
     }
@@ -92,7 +92,7 @@ class BoardTest {
     fun addNoteTest_addNoteToEmptyCell() {
         val index = 0
         val note = 1
-        board.addNote(index, note)
+        board.changeNote(index, note)
         assertTrue(board.getNotes(index).contains(note))
     }
 
@@ -102,7 +102,7 @@ class BoardTest {
         val number = 1
         val note = 2
         board.setNumber(index, number)
-        board.addNote(index, note)
+        board.changeNote(index, note)
         assertTrue(board.getNotes(index).contains(note))
     }
 
@@ -110,7 +110,7 @@ class BoardTest {
     fun addNoteTest_addNoteToCellContainingInitialNumber() {
         val index = 2
         val note = 9
-        board.addNote(index, note)
+        board.changeNote(index, note)
         assertFalse(board.getNotes(index).contains(note))
     }
 
@@ -128,7 +128,7 @@ class BoardTest {
     fun getNumberTest_cellContainingNotes() {
         val index = 0
         val note = 1
-        board.addNote(index, note)
+        board.changeNote(index, note)
         assertEquals(board.getNumber(index), EMPTY_CELL)
     }
 
@@ -141,8 +141,8 @@ class BoardTest {
         val notes = mutableMapOf<Int, Set<Int>>()
         notes[index1] = noteSet1
         notes[index2] = noteSet2
-        noteSet1.forEach { board.addNote(index1, it) }
-        noteSet2.forEach { board.addNote(index2, it) }
+        noteSet1.forEach { board.changeNote(index1, it) }
+        noteSet2.forEach { board.changeNote(index2, it) }
         assertTrue(board.getAllNotes().equals(notes))
     }
 
@@ -169,7 +169,7 @@ class BoardTest {
     fun getIndexesWithSameNumberTest_cellContainingNotes() {
         val index = 0
         val note = 1
-        board.addNote(index, note)
+        board.changeNote(index, note)
         assertTrue(board.getIndexesWithSameNumber(index).isEmpty())
     }
 
@@ -190,7 +190,7 @@ class BoardTest {
     fun clearBoardTest_notesAdded() {
         val index = 0
         val note = 1
-        board.addNote(index, note)
+        board.changeNote(index, note)
         board.clear()
         assertTrue(board.getNotes(index).isEmpty())
     }
@@ -208,7 +208,7 @@ class BoardTest {
     fun clearCellTest_cellContainingNotes() {
         val index = 0
         val note = 1
-        board.addNote(index, note)
+        board.changeNote(index, note)
         board.clearCell(index)
         assertTrue(board.getNotes(index).isEmpty())
     }

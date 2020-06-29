@@ -6,38 +6,29 @@ import androidx.lifecycle.ViewModel
 import io.github.pawgli.sudoku.utils.DIFFICULTY_EASY
 import io.github.pawgli.sudoku.utils.DIFFICULTY_HARD
 import io.github.pawgli.sudoku.utils.DIFFICULTY_MEDIUM
-import timber.log.Timber
+import io.github.pawgli.sudoku.utils.Event
 
-const val OPTION_NONE = "none"
 const val OPTION_EXIT = "exit"
 
 class MainMenuViewModel : ViewModel() {
 
-    private var _chosenOption = MutableLiveData<String>()
-    val chosenOption: LiveData<String>
+    private var _chosenOption = MutableLiveData<Event<String>>()
+    val chosenOption: LiveData<Event<String>>
         get() = _chosenOption
 
-    init {
-        _chosenOption.value = OPTION_NONE
-    }
-
     fun onEasyModeClicked() {
-        _chosenOption.value = DIFFICULTY_EASY
+        _chosenOption.value = Event(DIFFICULTY_EASY)
     }
 
     fun onMediumModeClicked() {
-        _chosenOption.value = DIFFICULTY_MEDIUM
+        _chosenOption.value = Event(DIFFICULTY_MEDIUM)
     }
 
     fun onHardModeClicked() {
-        _chosenOption.value = DIFFICULTY_HARD
+        _chosenOption.value = Event(DIFFICULTY_HARD)
     }
 
     fun onExitClicked() {
-        _chosenOption.value = OPTION_EXIT
-    }
-
-    fun onChosenOptionHandled() {
-        _chosenOption.value = OPTION_NONE
+        _chosenOption.value = Event(OPTION_EXIT)
     }
 }

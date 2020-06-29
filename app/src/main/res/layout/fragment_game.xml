@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             android:visibility="gone"
-            android:text="Couldn't download the board"
+            android:text="@string/message_download_error"
             app:layout_constraintBottom_toTopOf="@id/tryAgainButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
@@ -38,10 +38,10 @@
             android:id="@+id/tryAgainButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:theme="@style/GameButton"
             android:visibility="gone"
-            android:onClick="@{() -> viewModel.onTryAgainClicked()}"
-            android:text="Try Again"
+            android:onClick="@{() -> viewModel.onNewBoardClicked()}"
+            android:text="@string/button_label_try_again"
+            style="@style/GameButton"
             app:layout_constraintTop_toBottomOf="@id/errorMessageDisplay"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -76,113 +76,113 @@
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="0"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(1)}"
-                android:text="1" />
+                android:text="1"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="1"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(2)}"
-                android:text="2" />
+                android:text="2"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="2"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(3)}"
-                android:text="3" />
+                android:text="3"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="0"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(4)}"
-                android:text="4" />
+                android:text="4"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="1"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(5)}"
-                android:text="5" />
+                android:text="5"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="2"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(6)}"
-                android:text="6" />
+                android:text="6"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="2"
                 android:layout_column="0"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(7)}"
-                android:text="7" />
+                android:text="7"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="2"
                 android:layout_column="1"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(8)}"
-                android:text="8" />
+                android:text="8"
+                style="@style/GameButton" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="2"
                 android:layout_column="2"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onNumberClicked(9)}"
-                android:text="9" />
+                android:text="9"
+                style="@style/GameButton" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="3"
                 android:layout_column="0"
-                android:theme="@style/GameButton"
                 android:clickable="@{viewModel.isUndoEnabled() ? true : false}"
                 android:alpha="@{viewModel.isUndoEnabled() ? 1f : .3f}"
                 android:onClick="@{() -> viewModel.onUndoClicked()}"
-                android:text="UNDO" />
+                android:text="@string/button_label_undo"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="3"
                 android:layout_column="1"
-                android:theme="@style/GameButton"
                 android:textColor="@{viewModel.isNotingActive() ? @color/colorActiveButtonText : @color/textWhite}"
                 android:onClick="@{() -> viewModel.onNotesClicked()}"
-                android:text="NOTES" />
+                android:text="@string/button_label_notes"
+                style="@style/GameButton"  />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="3"
                 android:layout_column="2"
-                android:theme="@style/GameButton"
                 android:clickable="@{viewModel.isBoardFull() ? true : false}"
                 android:alpha="@{viewModel.isBoardFull() ? 1f : .3f}"
                 android:onClick="@{() -> viewModel.onCheckClicked()}"
-                android:text="CHECK" />
+                android:text="@string/button_label_check"
+                style="@style/GameButton"  />
 
         </GridLayout>
 
@@ -200,17 +200,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onClearCellClicked()}"
-                android:text="CLEAR CELL" />
+                android:text="@string/button_label_clear_cell"
+                style="@style/GameButton" />
 
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:theme="@style/GameButton"
                 android:onClick="@{() -> viewModel.onClearBoardClicked()}"
-                android:text="CLEAR BOARD" />
+                android:text="@string/button_label_clear_board"
+                style="@style/GameButton" />
 
         </LinearLayout>
 
