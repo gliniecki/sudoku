@@ -85,7 +85,6 @@ class GameFragment : Fragment() {
     }
 
     private fun initGameLayout() {
-        binding.boardView.boardSize = viewModel.board.size
         setGameLayoutVisibility(isVisible = true)
         setUpGameBoard()
     }
@@ -103,10 +102,11 @@ class GameFragment : Fragment() {
 
     private fun setUpGameBoard() {
         setBoardParameters()
-        observeBoard()
+        observeBoardView()
     }
 
     private fun setBoardParameters() {
+        boardView.boardSize = viewModel.board.size
         context?.let {
             boardView.selectedCellColor =
                 ContextCompat.getColor(it, R.color.colorActiveCell)
@@ -117,7 +117,7 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun observeBoard() {
+    private fun observeBoardView() {
         binding.boardView.setOnCellClickedListener {
                 row, column -> viewModel.onCellClicked(row, column)
         }

@@ -118,6 +118,7 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     private fun updateBoardState() {
         _initialIndexes.value = board.getInitialIndexes()
         _numbers.value = board.getAllNumbers()
+        _notes.value = board.getAllNotes()
         if (currentIndex != NONE_SELECTED) {
             _highlightedNumbersIndexes.value = board.getIndexesWithSameNumber(currentIndex)
         }
