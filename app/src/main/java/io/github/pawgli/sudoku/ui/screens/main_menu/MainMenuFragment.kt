@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import io.github.pawgli.sudoku.R
 import io.github.pawgli.sudoku.databinding.FragmentMainMenuBinding
-import timber.log.Timber
 
 class MainMenuFragment : Fragment() {
 
@@ -41,12 +40,10 @@ class MainMenuFragment : Fragment() {
     private fun observeChosenOption() {
         viewModel.chosenOption.observe(viewLifecycleOwner,
             Observer {
-                val content = it.getContentIfNotHandled()
-                Timber.d("Content = $content")
-                when(content) {
+                when(val chosenOption = it.getContentIfNotHandled()) {
                     null -> return@Observer
                     OPTION_EXIT -> closeApp()
-                    else -> openGame(difficulty = content)
+                    else -> openGame(difficulty = chosenOption)
                 }
             }
         )

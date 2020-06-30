@@ -5,6 +5,7 @@ import junit.framework.Assert.assertTrue
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.lang.IndexOutOfBoundsException
 
 private const val DIFFICULTY = "easy"
 private const val BOARD_SIZE = 9
@@ -67,7 +68,7 @@ class BoardTest {
         val index = 0
         val newValue = 10
         board.setNumber(index, newValue)
-        assertEquals(board.getNumber(index), newValue)
+        assertEquals(newValue, board.getNumber(index))
     }
 
     @Test
@@ -75,7 +76,7 @@ class BoardTest {
         val index = 2
         val newValue = 10
         board.setNumber(index, newValue)
-        assertNotEquals(board.getNumber(index), newValue)
+        assertNotEquals(newValue, board.getNumber(index))
     }
 
     @Test
@@ -83,53 +84,113 @@ class BoardTest {
         val index = 0
         val note = 1
         val number = 2
-        board.changeNote(index, note)
+        board.updateNote(index, note)
         board.setNumber(index, number)
-        assertEquals(board.getNumber(index), number)
+        assertEquals(number, board.getNumber(index))
     }
 
     @Test
-    fun addNoteTest_addNoteToEmptyCell() {
+    fun setNumberTest_indexOutOfBoundsToLow() {
+        val index = -1
+        val number = 10
+        board.setNumber(index, number)
+        assertEquals(numbersInitialState, board.getAllNumbers())
+    }
+
+    @Test
+    fun setNumberTest_indexOutOfBoundsToHigh() {
+        val index = numbersInitialState.size
+        val number = 10
+        board.setNumber(index, number)
+        assertEquals(numbersInitialState, board.getAllNumbers())
+    }
+
+    @Test
+    fun updateNoteTest_addNoteToEmptyCell() {
         val index = 0
         val note = 1
-        board.changeNote(index, note)
+        board.updateNote(index, note)
         assertTrue(board.getNotes(index).contains(note))
     }
 
     @Test
-    fun addNoteTest_addNoteToCellContainingAddedNumber() {
+    fun updateNoteTest_addNoteToCellContainingSameNote() {
+        val index = 0
+        val note = 1
+        board.updateNote(index, note)
+        board.updateNote(index, note)
+        assertTrue(board.getNotes(index).isEmpty())
+    }
+
+    @Test
+    fun updateNoteTest_addNoteToCellContainingAddedNumber() {
         val index = 0
         val number = 1
         val note = 2
         board.setNumber(index, number)
-        board.changeNote(index, note)
+        board.updateNote(index, note)
         assertTrue(board.getNotes(index).contains(note))
     }
 
     @Test
-    fun addNoteTest_addNoteToCellContainingInitialNumber() {
+    fun updateNoteTest_addNoteToCellContainingInitialNumber() {
         val index = 2
         val note = 9
-        board.changeNote(index, note)
+        board.updateNote(index, note)
         assertFalse(board.getNotes(index).contains(note))
     }
 
     @Test
     fun getNumberTest_emptyCell() {
-        assertEquals(board.getNumber(0), EMPTY_CELL)
+        assertEquals(EMPTY_CELL, board.getNumber(0))
     }
 
     @Test
     fun getNumber_cellContainingNumber() {
-        assertEquals(board.getNumber(2), 1)
+        assertEquals(1, board.getNumber(2))
     }
 
     @Test
     fun getNumberTest_cellContainingNotes() {
         val index = 0
         val note = 1
-        board.changeNote(index, note)
-        assertEquals(board.getNumber(index), EMPTY_CELL)
+        board.updateNote(index, note)
+        assertEquals(EMPTY_CELL, board.getNumber(index))
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun getNumberTest_cellOutOfBoundsOneToLow() {
+        board.getNumber(-1)
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun getNumberTest_cellOutOfBoundsOneToHigh() {
+        board.getNumber(numbersInitialState.size)
+    }
+
+    @Test
+    fun getNotesTest_emptyCell() {
+        assertTrue(board.getNotes(0).isEmpty())
+    }
+
+    @Test
+    fun getNotesTest_cellContainingNotes() {
+        val index = 0
+        val note1 = 1
+        val note2 = 6
+        board.updateNote(index, note1)
+        board.updateNote(index, note2)
+        assertEquals(board.getNotes(index), setOf(note1, note2))
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun getNotesTest_cellOutOfBoundsOneToLow() {
+        board.getNotes(-1)
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun getNotesTest_cellOutOfBoundsOneToHigh() {
+        board.getNotes(numbersInitialState.size)
     }
 
     @Test
@@ -141,8 +202,8 @@ class BoardTest {
         val notes = mutableMapOf<Int, Set<Int>>()
         notes[index1] = noteSet1
         notes[index2] = noteSet2
-        noteSet1.forEach { board.changeNote(index1, it) }
-        noteSet2.forEach { board.changeNote(index2, it) }
+        noteSet1.forEach { board.updateNote(index1, it) }
+        noteSet2.forEach { board.updateNote(index2, it) }
         assertTrue(board.getAllNotes().equals(notes))
     }
 
@@ -153,7 +214,7 @@ class BoardTest {
             32, 33, 35, 37, 41, 43, 47, 51, 52, 54,
             56, 57, 58, 59, 60, 61, 62, 63, 65, 69,
             70, 71, 73, 75, 76, 78, 80)
-        assertArrayEquals(board.getInitialIndexes().toIntArray(), initialIndexes.toIntArray())
+        assertArrayEquals(initialIndexes.toIntArray(), board.getInitialIndexes().toIntArray())
     }
 
     @Test
@@ -161,15 +222,15 @@ class BoardTest {
         val selectedIndex = 26
         val indexesWithSameNumber = listOf<Int>(26, 31, 37, 52, 57, 63, 78)
         assertArrayEquals(
-            board.getIndexesWithSameNumber(selectedIndex).toIntArray(),
-            indexesWithSameNumber.toIntArray())
+            indexesWithSameNumber.toIntArray(),
+            board.getIndexesWithSameNumber(selectedIndex).toIntArray())
     }
 
     @Test
     fun getIndexesWithSameNumberTest_cellContainingNotes() {
         val index = 0
         val note = 1
-        board.changeNote(index, note)
+        board.updateNote(index, note)
         assertTrue(board.getIndexesWithSameNumber(index).isEmpty())
     }
 
@@ -183,14 +244,14 @@ class BoardTest {
         board.setNumber(0, 10)
         board.setNumber(1, 10)
         board.clear()
-        assertArrayEquals(board.getAllNumbers().toIntArray(), numbersInitialState.toIntArray())
+        assertArrayEquals(numbersInitialState.toIntArray(), board.getAllNumbers().toIntArray())
     }
 
     @Test
     fun clearBoardTest_notesAdded() {
         val index = 0
         val note = 1
-        board.changeNote(index, note)
+        board.updateNote(index, note)
         board.clear()
         assertTrue(board.getNotes(index).isEmpty())
     }
@@ -201,16 +262,33 @@ class BoardTest {
         val index = 0
         board.setNumber(index, newNumber)
         board.clearCell(index)
-        assertEquals(board.getNumber(index), EMPTY_CELL)
+        assertEquals(EMPTY_CELL, board.getNumber(index))
     }
 
     @Test
     fun clearCellTest_cellContainingNotes() {
         val index = 0
         val note = 1
-        board.changeNote(index, note)
+        board.updateNote(index, note)
         board.clearCell(index)
         assertTrue(board.getNotes(index).isEmpty())
+    }
+
+    @Test
+    fun isEmptyTest_boardContainingAddedNumber() {
+        board.setNumber(0, 1)
+        assertFalse(board.isEmpty())
+    }
+
+    @Test
+    fun isEmptyTest_boardContainingNote() {
+        board.updateNote(0, 4)
+        assertFalse(board.isEmpty())
+    }
+
+    @Test
+    fun isEmptyTest_boardEmpty() {
+        assertTrue(board.isEmpty())
     }
 
     @Test

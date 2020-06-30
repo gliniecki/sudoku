@@ -22,7 +22,8 @@
 
     <fragment
         android:id="@+id/gameFragment"
-        android:name="io.github.pawgli.sudoku.ui.screens.game.GameFragment">
+        android:name="io.github.pawgli.sudoku.ui.screens.game.GameFragment"
+        tools:layout="@layout/activity_main">
 
         <argument
             android:name="difficulty"

@@ -3,12 +3,12 @@ package io.github.pawgli.sudoku.ui.screens.game
 import android.os.Bundle
 import android.os.Handler
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import io.github.pawgli.sudoku.R
 import io.github.pawgli.sudoku.databinding.FragmentGameBinding
 import io.github.pawgli.sudoku.ui.dialogs.getPosNegDialog
@@ -179,6 +179,7 @@ class GameFragment : Fragment() {
         when (item.itemId) {
             R.id.menu_item_reload -> viewModel.onNewBoardClicked()
             R.id.menu_item_exit -> closeApp()
+            android.R.id.home -> findNavController().navigateUp()
         }
         return true
     }

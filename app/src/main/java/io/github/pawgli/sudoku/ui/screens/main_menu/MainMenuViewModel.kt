@@ -24,7 +24,7 @@ class MainMenuViewModel : ViewModel() {
         _chosenOption.value = Event(DIFFICULTY_MEDIUM)
     }
 
-    fun onHardModeClicked() {
+    fun onDifficultModeClicked() {
         _chosenOption.value = Event(DIFFICULTY_HARD)
     }
 

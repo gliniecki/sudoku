@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:text="@string/button_label_difficult"
-            android:onClick="@{() -> viewModel.onHardModeClicked()}"
+            android:onClick="@{() -> viewModel.onDifficultModeClicked()}"
             style="@style/GameButton" />
 
         <Button

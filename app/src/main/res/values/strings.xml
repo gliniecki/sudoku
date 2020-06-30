@@ -6,7 +6,7 @@
     <string name="button_label_easy">easy</string>
     <string name="button_label_medium">medium</string>
     <string name="button_label_difficult">difficult</string>
-    <string name="button_label_exit">easy</string>
+    <string name="button_label_exit">exit</string>
 
     <string name="button_label_undo">undo</string>
     <string name="button_label_notes">notes</string>

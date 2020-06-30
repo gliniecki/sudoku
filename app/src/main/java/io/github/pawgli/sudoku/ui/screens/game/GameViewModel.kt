@@ -9,7 +9,6 @@ import io.github.pawgli.sudoku.models.OnBoardStateChanged
 import io.github.pawgli.sudoku.models.asDomainModel
 import io.github.pawgli.sudoku.network.SudokuApi
 import io.github.pawgli.sudoku.utils.CallbackEvent
-import io.github.pawgli.sudoku.utils.Event
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -102,10 +101,26 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
 
     private fun onBoardFetched() {
         _boardFetchStatus.value = STATUS_SUCCESS
+        initBoard()
+    }
+
+    private fun initBoard() {
+        clearMoves()
+        updateBoardState()
+        board.addOnBoardStateChangedObserver(this)
+    }
+
+    private fun clearMoves() {
+        moves.clear()
+        _isUndoEnabled.value = false
+    }
+
+    private fun updateBoardState() {
         _initialIndexes.value = board.getInitialIndexes()
         _numbers.value = board.getAllNumbers()
-        moves.clear()
-        board.addOnBoardStateChangedObserver(this)
+        if (currentIndex != NONE_SELECTED) {
+            _highlightedNumbersIndexes.value = board.getIndexesWithSameNumber(currentIndex)
+        }
     }
 
     fun onCellClicked(row: Int, column: Int) {
@@ -118,7 +133,7 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
 
     fun onNumberClicked(number: Int) {
         if (currentIndex == NONE_SELECTED) return
-        if (isNotingActive.value == true) board.changeNote(currentIndex, number)
+        if (isNotingActive.value == true) board.updateNote(currentIndex, number)
         else addNumber(number)
     }
 
@@ -130,7 +145,16 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     fun onNotesClicked() { _isNotingActive.value = !isNotingActive.value!! }
 
     fun onUndoClicked() {
-        restoreLastMove()
+        if (moves.isEmpty()) _isUndoEnabled.value = false
+        else restoreLastMove()
+    }
+
+    private fun restoreLastMove() {
+        isRestoringPreviousState = true
+        val lastMove = moves.last()
+        moves.pop()
+        if (moves.isEmpty()) _isUndoEnabled.value = false
+        board.setNumber(index = lastMove.first, number = lastMove.second)
     }
 
     fun onCheckClicked() {
@@ -140,10 +164,10 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
             R.string.dialog_title_something_wrong
         }
         val messageResId = R.string.dialog_message_load_new_board
-        showPosNegDialog(titleResId, messageResId) { fetchBoard() }
+        displayPosNegDialog(titleResId, messageResId) { fetchBoard() }
     }
 
-    private fun showPosNegDialog(titleResId: Int, messageResId: Int, onPositive: () -> Unit) {
+    private fun displayPosNegDialog(titleResId: Int, messageResId: Int, onPositive: () -> Unit) {
         _displayPosNegDialog.value =
             CallbackEvent(Pair(titleResId, messageResId)) { onPositive.invoke() }
     }
@@ -151,15 +175,21 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     fun onClearCellClicked() { board.clearCell(currentIndex) }
 
     fun onClearBoardClicked() {
-        val titleId = R.string.dialog_title_are_you_sure
-        val messageId = R.string.dialog_message_lose_progress
-        showPosNegDialog(titleId, messageId) { board.clear() }
+        if (!board.isEmpty()) {
+            val titleId = R.string.dialog_title_are_you_sure
+            val messageId = R.string.dialog_message_lose_progress
+            displayPosNegDialog(titleId, messageId) { board.clear() }
+        }
     }
 
     fun onNewBoardClicked() {
-        val titleId = R.string.dialog_title_are_you_sure
-        val messageId = R.string.dialog_message_lose_progress
-        showPosNegDialog(titleId, messageId) { fetchBoard() }
+        if (!this::board.isInitialized || board.isEmpty()) {
+            fetchBoard()
+        } else {
+            val titleId = R.string.dialog_title_are_you_sure
+            val messageId = R.string.dialog_message_lose_progress
+            displayPosNegDialog(titleId, messageId) { fetchBoard() }
+        }
     }
 
     override fun onCleared() {
@@ -169,16 +199,9 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
 
     override fun onNumberChanged(index: Int, previousValue: Int) {
         _isBoardFull.value = board.isFull()
-        _numbers.value = board.getAllNumbers()
-        _highlightedNumbersIndexes.value = board.getIndexesWithSameNumber(currentIndex)
+        updateBoardState()
         if (isRestoringPreviousState) isRestoringPreviousState = false
         else addMove(index, previousValue)
-    }
-
-    override fun onBoardCleared() {
-        _isBoardFull.value = false
-        clearMoves()
-        _numbers.value = board.getAllNumbers()
     }
 
     private fun addMove(index: Int, number: Int) {
@@ -186,17 +209,10 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
         _isUndoEnabled.value = true
     }
 
-    private fun restoreLastMove() {
-        isRestoringPreviousState = true
-        val lastMove = moves.last()
-        moves.pop()
-        if (moves.empty()) _isUndoEnabled.value = false
-        board.setNumber(lastMove.first, lastMove.second)
-    }
-
-    private fun clearMoves() {
-        moves.clear()
-        _isUndoEnabled.value = false
+    override fun onBoardCleared() {
+        _isBoardFull.value = false
+        clearMoves()
+        updateBoardState()
     }
 
     override fun onNotesStateChanged() {
