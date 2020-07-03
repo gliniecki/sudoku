@@ -25,27 +25,27 @@ class MainMenuViewModelTest {
     fun onEasyModeClickedTest_setsChosenOptionEvent() {
         mainMenuViewModel.onEasyModeClicked()
         val value = mainMenuViewModel.chosenOption.getOrAwaitValue()
-        assertEquals(value.getContentIfNotHandled(), DIFFICULTY_EASY)
+        assertEquals(DIFFICULTY_EASY, value.getContentIfNotHandled())
     }
 
     @Test
     fun onMediumModeClickedTest_setsChosenOptionEvent() {
         mainMenuViewModel.onMediumModeClicked()
         val value = mainMenuViewModel.chosenOption.getOrAwaitValue()
-        assertEquals(value.getContentIfNotHandled(), DIFFICULTY_MEDIUM)
+        assertEquals(DIFFICULTY_MEDIUM, value.getContentIfNotHandled())
     }
 
     @Test
     fun onDifficultModeClickedTest_setsChosenOptionEvent() {
         mainMenuViewModel.onDifficultModeClicked()
         val value = mainMenuViewModel.chosenOption.getOrAwaitValue()
-        assertEquals(value.getContentIfNotHandled(), DIFFICULTY_HARD)
+        assertEquals(DIFFICULTY_HARD, value.getContentIfNotHandled())
     }
 
     @Test
     fun onExitClickedTest_setsChosenOptionEvent() {
         mainMenuViewModel.onExitClicked()
         val value = mainMenuViewModel.chosenOption.getOrAwaitValue()
-        assertEquals(value.getContentIfNotHandled(), OPTION_EXIT)
+        assertEquals(OPTION_EXIT, value.getContentIfNotHandled())
     }
 }

@@ -95,32 +95,32 @@ class SudokuSolutionCheckTest {
     }
 
     @Test
-    fun hasDuplicatesHorizontallyTest_noDuplicates() {
-        assertTrue(hasDuplicatesHorizontally(numbersCorrectlySolved, boardSize))
+    fun hasNoDuplicatesHorizontallyTest_noDuplicates() {
+        assertTrue(hasNoDuplicatesHorizontally(numbersCorrectlySolved, boardSize))
     }
 
     @Test
-    fun hasDuplicatesHorizontallyTest_oneDuplicate() {
-        assertFalse(hasDuplicatesHorizontally(numbersDuplicateHorizontally, boardSize))
+    fun hasNoDuplicatesHorizontallyTest_oneDuplicate() {
+        assertFalse(hasNoDuplicatesHorizontally(numbersDuplicateHorizontally, boardSize))
     }
 
     @Test
-    fun hasDuplicatesVerticallyTest_noDuplicates() {
-        assertTrue(hasDuplicatesVertically(numbersCorrectlySolved, boardSize))
+    fun hasNoDuplicatesVerticallyTest_noDuplicates() {
+        assertTrue(hasNoDuplicatesVertically(numbersCorrectlySolved, boardSize))
     }
 
     @Test
-    fun hasDuplicatesVerticallyTest_oneDuplicate() {
-        assertFalse(hasDuplicatesVertically(numbersDuplicateVertically, boardSize))
+    fun hasNoDuplicatesVerticallyTest_oneDuplicate() {
+        assertFalse(hasNoDuplicatesVertically(numbersDuplicateVertically, boardSize))
     }
 
     @Test
-    fun hasDuplicatesInBoxesTest_noDuplicates() {
-        assertTrue(hasDuplicatesInBoxes(numbersCorrectlySolved, boardSize))
+    fun hasNoDuplicatesInBoxesTest_noDuplicates() {
+        assertTrue(hasNoDuplicatesInBoxes(numbersCorrectlySolved, boardSize))
     }
 
     @Test
-    fun hasDuplicatesInBoxesTest_oneDuplicate() {
-        assertFalse(hasDuplicatesInBoxes(numbersDuplicateInBox, boardSize))
+    fun hasNoDuplicatesInBoxesTest_oneDuplicate() {
+        assertFalse(hasNoDuplicatesInBoxes(numbersDuplicateInBox, boardSize))
     }
 }

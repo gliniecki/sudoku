@@ -3,9 +3,9 @@ package io.github.pawgli.sudoku.utils
 fun isSudokuSolvedCorrectly(numbers: List<Int>): Boolean {
     val boardSize = (numbers.size).sqrt()
     return  hasAllNumbersInRange(numbers, boardSize)
-            && hasDuplicatesHorizontally(numbers, boardSize)
-            && hasDuplicatesVertically(numbers, boardSize)
-            && hasDuplicatesInBoxes(numbers, boardSize)
+            && hasNoDuplicatesHorizontally(numbers, boardSize)
+            && hasNoDuplicatesVertically(numbers, boardSize)
+            && hasNoDuplicatesInBoxes(numbers, boardSize)
 }
 
 fun hasAllNumbersInRange(numbersSolution: List<Int>, boardSize: Int): Boolean {
@@ -13,7 +13,7 @@ fun hasAllNumbersInRange(numbersSolution: List<Int>, boardSize: Int): Boolean {
     return true
 }
 
-fun hasDuplicatesHorizontally(numbersSolution: List<Int>, boardSize: Int): Boolean {
+fun hasNoDuplicatesHorizontally(numbersSolution: List<Int>, boardSize: Int): Boolean {
     val numbersCurrentRow = mutableListOf<Int>()
     val firstIndexOfLastRow = boardSize * (boardSize - 1)
     for (row in 0..firstIndexOfLastRow step boardSize) {
@@ -27,7 +27,7 @@ fun hasDuplicatesHorizontally(numbersSolution: List<Int>, boardSize: Int): Boole
     return true
 }
 
-fun hasDuplicatesVertically(numbersSolution: List<Int>, boardSize: Int): Boolean {
+fun hasNoDuplicatesVertically(numbersSolution: List<Int>, boardSize: Int): Boolean {
     val numbersCurrentColumn = mutableListOf<Int>()
     for (column in 0 until boardSize) {
         numbersCurrentColumn.clear()
@@ -41,7 +41,7 @@ fun hasDuplicatesVertically(numbersSolution: List<Int>, boardSize: Int): Boolean
     return true
 }
 
-fun hasDuplicatesInBoxes(numbersSolution: List<Int>, boardSize: Int): Boolean {
+fun hasNoDuplicatesInBoxes(numbersSolution: List<Int>, boardSize: Int): Boolean {
     val numbersCurrentBox = mutableListOf<Int>()
     val boxSize = boardSize.sqrt()
     val lastBoxFirstIndex = boardSize * (boardSize - boxSize) + boardSize - boxSize
