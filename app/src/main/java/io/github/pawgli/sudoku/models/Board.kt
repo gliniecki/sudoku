@@ -1,18 +1,13 @@
 package io.github.pawgli.sudoku.models
 
-import android.os.Parcelable
 import io.github.pawgli.sudoku.utils.isSudokuSolvedCorrectly
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
 import java.lang.IndexOutOfBoundsException
 
-@Parcelize
 class Board (
     val difficulty: String,
     val size: Int,
-    private val cells: List<Cell>) : Parcelable {
+    private val cells: List<Cell>) {
 
-    @IgnoredOnParcel
     private val onBoardStateChangedObservers = mutableListOf<OnBoardStateChanged>()
 
     fun setNumber(index: Int, number: Int) {
@@ -102,6 +97,8 @@ class Board (
         }
         return indexes
     }
+
+    fun getCells() = cells
 
     fun clearCell(index: Int) {
         if (index !in cells.indices) return

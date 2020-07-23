@@ -1,9 +1,8 @@
-package io.github.pawgli.sudoku.network
+package io.github.pawgli.sudoku.data.remote
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.github.pawgli.sudoku.models.NetworkBoard
 import kotlinx.coroutines.Deferred
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -26,7 +25,7 @@ private val retrofit = Retrofit.Builder()
 
 interface SudokuApiService {
     @GET(PATH_BOARD)
-    fun getBoardAsync(@Query(QUERY_DIFFICULTY) type: String): Deferred<NetworkBoard>
+    suspend fun getBoard(@Query(QUERY_DIFFICULTY) type: String): NetworkBoard
 }
 
 object SudokuApi {

@@ -1,17 +1,12 @@
 package io.github.pawgli.sudoku.ui.screens.game
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import io.github.pawgli.sudoku.R
+import io.github.pawgli.sudoku.data.repository.BoardsRepository
+import io.github.pawgli.sudoku.data.repository.Result
 import io.github.pawgli.sudoku.models.Board
 import io.github.pawgli.sudoku.models.OnBoardStateChanged
-import io.github.pawgli.sudoku.models.asDomainModel
-import io.github.pawgli.sudoku.network.SudokuApi
 import io.github.pawgli.sudoku.utils.CallbackEvent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
@@ -21,10 +16,9 @@ const val STATUS_SUCCESS = "success"
 const val STATUS_FAILURE = "failure"
 private const val NONE_SELECTED = -1
 
-class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateChanged {
-
-    private var viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class GameViewModel(
+    private val difficulty: String,
+    private val boardsRepository: BoardsRepository) : ViewModel(), OnBoardStateChanged {
 
     lateinit var board: Board
         private set
@@ -33,7 +27,8 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
     private var isRestoringPreviousState = false
     private var currentIndex = NONE_SELECTED
 
-    private val _boardFetchStatus = MutableLiveData<String>()
+    private val _boardFetchStatus =
+        boardsRepository.observeBoardResult().map { checkBoardResult(it) }
     val boardFetchStatus: LiveData<String>
         get() = _boardFetchStatus
 
@@ -84,23 +79,28 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
         _isUndoEnabled.value = false
     }
 
-    private fun fetchBoard() {
-        _boardFetchStatus.value = STATUS_FETCHING
-        coroutineScope.launch {
-            val getBoardDeferred = SudokuApi.service.getBoardAsync(difficulty)
-            try {
-                val networkBoard = getBoardDeferred.await()
-                board = networkBoard.asDomainModel(difficulty)
-                onBoardFetched()
-            } catch (t: Throwable) {
-                Timber.w("Failed fetching the board: ${t.message}")
-                _boardFetchStatus.value = STATUS_FAILURE
+    private fun checkBoardResult(boardResult: Result<Board>): String {
+        return when(boardResult) {
+            is Result.Loading -> STATUS_FETCHING
+            is Result.Success -> {
+                onBoardFetched(boardResult.data)
+                STATUS_SUCCESS
+            }
+            is Result.Error -> {
+                Timber.w("Failed fetching the board: ${boardResult.exception}")
+                STATUS_FAILURE
             }
         }
     }
 
-    private fun onBoardFetched() {
-        _boardFetchStatus.value = STATUS_SUCCESS
+    private fun fetchBoard() {
+        viewModelScope.launch {
+            boardsRepository.getEmptyBoard(difficulty)
+        }
+    }
+
+    private fun onBoardFetched(fetchedBoard: Board) {
+        board = fetchedBoard
         initBoard()
     }
 
@@ -191,11 +191,6 @@ class GameViewModel(private val difficulty: String) : ViewModel(), OnBoardStateC
             val messageId = R.string.dialog_message_lose_progress
             displayPosNegDialog(titleId, messageId) { fetchBoard() }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
     }
 
     override fun onNumberChanged(index: Int, previousValue: Int) {

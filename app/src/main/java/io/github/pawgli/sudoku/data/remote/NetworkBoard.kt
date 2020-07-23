@@ -1,4 +1,7 @@
-package io.github.pawgli.sudoku.models
+package io.github.pawgli.sudoku.data.remote
+
+import io.github.pawgli.sudoku.models.Board
+import io.github.pawgli.sudoku.models.Cell
 
 data class NetworkBoard(val board: List<List<Int>>)
 

@@ -10,6 +10,6 @@ fun Context.getAlertBuilder(): AlertDialog.Builder {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
         AlertDialog.Builder(this, R.style.DialogTheme)
     } else {
-        AlertDialog.Builder(this, android.app.AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+        AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
     }
 }

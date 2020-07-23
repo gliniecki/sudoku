@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import io.github.pawgli.sudoku.R
+import io.github.pawgli.sudoku.SudokuApp
 import io.github.pawgli.sudoku.databinding.FragmentGameBinding
 import io.github.pawgli.sudoku.ui.dialogs.getPosNegDialog
 import kotlinx.android.synthetic.main.fragment_game.*
@@ -18,23 +19,21 @@ import java.lang.IllegalArgumentException
 class GameFragment : Fragment() {
 
     private lateinit var binding: FragmentGameBinding
-    private lateinit var viewModel: GameViewModel
+    private val viewModel by lazy {
+        val difficulty = GameFragmentArgs.fromBundle(requireArguments()).difficulty
+        val boardsRepository = (requireContext().applicationContext as SudokuApp).boardsRepository
+        val viewModelFactory = GameViewModelFactory(difficulty, boardsRepository)
+        ViewModelProvider(this, viewModelFactory).get(GameViewModel::class.java)
+}
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.app_name)
         binding = FragmentGameBinding.inflate(inflater)
-        initViewModel()
         setUpBinding()
         observeViewModel()
         setHasOptionsMenu(true)
         return binding.root
-    }
-
-    private fun initViewModel() {
-        val difficulty = GameFragmentArgs.fromBundle(requireArguments()).difficulty
-        val viewModelFactory = GameViewModelFactory(difficulty)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(GameViewModel::class.java)
     }
 
     private fun setUpBinding() {
