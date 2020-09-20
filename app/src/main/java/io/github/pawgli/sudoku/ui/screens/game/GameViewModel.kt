@@ -11,14 +11,12 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 
-const val STATUS_FETCHING = "fetching"
-const val STATUS_SUCCESS = "success"
-const val STATUS_FAILURE = "failure"
 private const val NONE_SELECTED = -1
 
 class GameViewModel(
     private val difficulty: String,
-    private val boardsRepository: BoardsRepository) : ViewModel(), OnBoardStateChanged {
+    private val boardsRepository: BoardsRepository
+) : ViewModel(), OnBoardStateChanged, LifecycleObserver {
 
     lateinit var board: Board
         private set
@@ -29,7 +27,7 @@ class GameViewModel(
 
     private val _boardFetchStatus =
         boardsRepository.observeBoardResult().map { checkBoardResult(it) }
-    val boardFetchStatus: LiveData<String>
+    val boardFetchStatus: LiveData<Status>
         get() = _boardFetchStatus
 
     private val _isNotingActive = MutableLiveData<Boolean>()
@@ -79,16 +77,16 @@ class GameViewModel(
         _isUndoEnabled.value = false
     }
 
-    private fun checkBoardResult(boardResult: Result<Board>): String {
+    private fun checkBoardResult(boardResult: Result<Board>): Status {
         return when(boardResult) {
-            is Result.Loading -> STATUS_FETCHING
+            is Result.Loading -> Status.FETCHING
             is Result.Success -> {
                 onBoardFetched(boardResult.data)
-                STATUS_SUCCESS
+                Status.SUCCESS
             }
             is Result.Error -> {
                 Timber.w("Failed fetching the board: ${boardResult.exception}")
-                STATUS_FAILURE
+                Status.FAILURE
             }
         }
     }
@@ -214,4 +212,13 @@ class GameViewModel(
     override fun onNotesStateChanged() {
         _notes.value = board.getAllNotes()
     }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    private fun onLifecycleStop() {
+
+    }
+}
+
+enum class Status {
+    FETCHING, SUCCESS, FAILURE
 }

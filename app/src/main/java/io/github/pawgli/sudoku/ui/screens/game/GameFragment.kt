@@ -54,10 +54,11 @@ class GameFragment : Fragment() {
     private fun observeBoardFetchStatus() {
         viewModel.boardFetchStatus.observe(viewLifecycleOwner,
             Observer {
+                if (it == null) return@Observer
                 when (it) {
-                    STATUS_FETCHING -> setLoadingLayoutVisibility(isVisible = true)
-                    STATUS_FAILURE -> setFetchFailureLayoutVisibility(isVisible = true)
-                    STATUS_SUCCESS -> initGameLayout()
+                    Status.FETCHING -> setLoadingLayoutVisibility(isVisible = true)
+                    Status.FAILURE -> setFetchFailureLayoutVisibility(isVisible = true)
+                    Status.SUCCESS -> initGameLayout()
                 }
             }
         )
