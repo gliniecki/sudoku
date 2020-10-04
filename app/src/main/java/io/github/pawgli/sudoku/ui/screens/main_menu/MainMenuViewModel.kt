@@ -3,32 +3,32 @@ package io.github.pawgli.sudoku.ui.screens.main_menu
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.github.pawgli.sudoku.utils.DIFFICULTY_EASY
-import io.github.pawgli.sudoku.utils.DIFFICULTY_HARD
-import io.github.pawgli.sudoku.utils.DIFFICULTY_MEDIUM
+import io.github.pawgli.sudoku.utils.Difficulty
 import io.github.pawgli.sudoku.utils.Event
-
-const val OPTION_EXIT = "exit"
 
 class MainMenuViewModel : ViewModel() {
 
-    private var _chosenOption = MutableLiveData<Event<String>>()
-    val chosenOption: LiveData<Event<String>>
-        get() = _chosenOption
+    private var _exitGame = MutableLiveData<Boolean>()
+    val exitGame: LiveData<Boolean>
+        get() = _exitGame
+
+    private var _startNewGame = MutableLiveData<Event<Difficulty>>()
+    val startNewGame: LiveData<Event<Difficulty>>
+        get() = _startNewGame
+
+    fun onExitClicked() {
+        _exitGame.value = true
+    }
 
     fun onEasyModeClicked() {
-        _chosenOption.value = Event(DIFFICULTY_EASY)
+        _startNewGame.value = Event(Difficulty.EASY)
     }
 
     fun onMediumModeClicked() {
-        _chosenOption.value = Event(DIFFICULTY_MEDIUM)
+        _startNewGame.value = Event(Difficulty.MEDIUM)
     }
 
     fun onDifficultModeClicked() {
-        _chosenOption.value = Event(DIFFICULTY_HARD)
-    }
-
-    fun onExitClicked() {
-        _chosenOption.value = Event(OPTION_EXIT)
+        _startNewGame.value = Event(Difficulty.HARD)
     }
 }

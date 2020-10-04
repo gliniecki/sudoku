@@ -7,12 +7,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import io.github.pawgli.sudoku.data.repository.Result.Success
 import io.github.pawgli.sudoku.data.repository.Result.Error
+import io.github.pawgli.sudoku.utils.Difficulty
 
 class BoardsLocalDataSource (
     private val boardsDao: BoardsDao,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
 
-    suspend fun getRandomEmptyBoard(difficulty: String): Result<Board> = withContext(ioDispatcher) {
+    suspend fun getRandomEmptyBoard(difficulty: Difficulty): Result<Board> = withContext(ioDispatcher) {
             return@withContext try {
                 val boards = boardsDao.getAllEmptyBoards(difficulty)
                 val randomDatabaseBoard = boards.random()

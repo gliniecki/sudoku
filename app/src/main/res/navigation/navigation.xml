@@ -27,7 +27,7 @@
 
         <argument
             android:name="difficulty"
-            app:argType="string"/>
+            app:argType="io.github.pawgli.sudoku.utils.Difficulty"/>
 
     </fragment>
 

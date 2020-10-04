@@ -1,7 +1,7 @@
 package io.github.pawgli.sudoku.data.local
 
 import androidx.room.*
-import retrofit2.http.DELETE
+import io.github.pawgli.sudoku.utils.Difficulty
 
 @Dao
 interface BoardsDao {
@@ -13,7 +13,7 @@ interface BoardsDao {
     fun getAllEmptyBoards(): List<DatabaseBoard>
 
     @Query("SELECT * FROM table_boards WHERE is_saved_by_user = 0 AND difficulty = :difficulty")
-    fun getAllEmptyBoards(difficulty: String): List<DatabaseBoard>
+    fun getAllEmptyBoards(difficulty: Difficulty): List<DatabaseBoard>
 
     @Query("SELECT * FROM table_boards WHERE id = :boardId")
     fun getBoardById(boardId: Int): DatabaseBoard

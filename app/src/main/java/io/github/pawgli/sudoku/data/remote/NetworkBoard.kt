@@ -2,10 +2,11 @@ package io.github.pawgli.sudoku.data.remote
 
 import io.github.pawgli.sudoku.models.Board
 import io.github.pawgli.sudoku.models.Cell
+import io.github.pawgli.sudoku.utils.Difficulty
 
 data class NetworkBoard(val board: List<List<Int>>)
 
-fun NetworkBoard.asDomainModel(difficulty: String): Board {
+fun NetworkBoard.asDomainModel(difficulty: Difficulty): Board {
     val cells = mutableListOf<Cell>()
     for (row in board) {
         for (number in row) {

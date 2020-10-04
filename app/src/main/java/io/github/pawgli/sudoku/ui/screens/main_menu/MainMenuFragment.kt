@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import io.github.pawgli.sudoku.R
 import io.github.pawgli.sudoku.databinding.FragmentMainMenuBinding
+import io.github.pawgli.sudoku.utils.Difficulty
 
 class MainMenuFragment : Fragment() {
 
@@ -34,22 +35,24 @@ class MainMenuFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        observeChosenOption()
+        observeExitGame()
+        observeStartNewGame()
     }
 
-    private fun observeChosenOption() {
-        viewModel.chosenOption.observe(viewLifecycleOwner,
-            Observer {
-                when(val chosenOption = it.getContentIfNotHandled()) {
-                    null -> return@Observer
-                    OPTION_EXIT -> closeApp()
-                    else -> openGame(difficulty = chosenOption)
-                }
+    private fun observeExitGame() {
+        viewModel.exitGame.observe(viewLifecycleOwner, Observer { if (it == true) closeApp() })
+    }
+
+    private fun observeStartNewGame() {
+        viewModel.startNewGame.observe(viewLifecycleOwner, Observer {
+            when(val difficulty = it.getContentIfNotHandled()) {
+                null -> return@Observer
+                else -> startNewGame(difficulty)
             }
-        )
+        })
     }
 
-    private fun openGame(difficulty: String) {
+    private fun startNewGame(difficulty: Difficulty) {
         this.findNavController().navigate(MainMenuFragmentDirections.actionStartGame(difficulty))
     }
 

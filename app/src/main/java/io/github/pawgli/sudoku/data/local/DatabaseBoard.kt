@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import io.github.pawgli.sudoku.models.Board
 import io.github.pawgli.sudoku.models.Cell
+import io.github.pawgli.sudoku.utils.Difficulty
 import java.util.*
 
 @Entity(tableName = "table_boards")
@@ -15,7 +16,10 @@ data class DatabaseBoard constructor(
     @ColumnInfo(name = "id")
     var boardId: Long = 0,
 
-    var difficulty: String,
+
+    @TypeConverters(DifficultyConverter::class)
+    var difficulty: Difficulty,
+
     var size: Int,
 
     @TypeConverters(CellsConverter::class)

@@ -139,12 +139,16 @@ class SudokuBoardView(context: Context, attrs: AttributeSet) : View(context, att
                 val isSelectedBox = row / singleBoxSize == selectedRow / singleBoxSize
                         && column / singleBoxSize == selectedColumn / singleBoxSize
 
-                if (isSelectedCell) {
-                    highlightCell(row, column, isSelected = true)
-                } else if (isSelectedLine) {
-                    highlightCell(row, column, isSelected = false)
-                } else if (isSelectedBox) {
-                    highlightCell(row, column, isSelected = false)
+                when {
+                    isSelectedCell -> {
+                        highlightCell(row, column, isSelected = true)
+                    }
+                    isSelectedLine -> {
+                        highlightCell(row, column, isSelected = false)
+                    }
+                    isSelectedBox -> {
+                        highlightCell(row, column, isSelected = false)
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ import io.github.pawgli.sudoku.data.local.BoardsLocalDataSource
 import io.github.pawgli.sudoku.models.Board
 import io.github.pawgli.sudoku.data.remote.SudokuApiService
 import io.github.pawgli.sudoku.data.remote.asDomainModel
+import io.github.pawgli.sudoku.utils.Difficulty
 import timber.log.Timber
 
 class DefaultBoardsRepository (
@@ -14,10 +15,10 @@ class DefaultBoardsRepository (
 
     private val boardResult = MutableLiveData<Result<Board>>()
 
-    override suspend fun getEmptyBoard(difficulty: String) {
+    override suspend fun getEmptyBoard(difficulty: Difficulty) {
         boardResult.value = Result.Loading
         try {
-            val networkBoard = boardsRemoteDataSource.getBoard(difficulty)
+            val networkBoard = boardsRemoteDataSource.getBoard(difficulty.value)
             val board = networkBoard.asDomainModel(difficulty)
             onBoardFetched(board)
         } catch (t: Throwable) {
@@ -30,7 +31,6 @@ class DefaultBoardsRepository (
         boardResult.value = Result.Success(board)
         boardsLocalDataSource.saveBoard(board, isSavedByUser = false)
     }
-
 
     override suspend fun saveBoard(board: Board): Int {
         TODO("Not yet implemented")

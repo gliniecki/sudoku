@@ -5,6 +5,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.github.pawgli.sudoku.models.Cell
+import io.github.pawgli.sudoku.utils.Difficulty
 import java.util.*
 
 class DateConverter {
@@ -17,6 +18,7 @@ class DateConverter {
 }
 
 class CellsConverter {
+
     private val moshi by lazy {
         Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
@@ -30,4 +32,13 @@ class CellsConverter {
 
     @TypeConverter
     fun fromJson(cellsJson: String) = jsonAdapter.fromJson(cellsJson)
+}
+
+class DifficultyConverter {
+
+    @TypeConverter
+    fun toString(difficulty: Difficulty) = difficulty.value
+
+    @TypeConverter
+    fun toDifficulty(value: String) = enumValueOf<Difficulty>(value.toUpperCase())
 }

@@ -1,10 +1,11 @@
 package io.github.pawgli.sudoku.models
 
+import io.github.pawgli.sudoku.utils.Difficulty
 import io.github.pawgli.sudoku.utils.isSudokuSolvedCorrectly
 import java.lang.IndexOutOfBoundsException
 
 class Board (
-    val difficulty: String,
+    val difficulty: Difficulty,
     val size: Int,
     private val cells: List<Cell>) {
 
@@ -91,8 +92,8 @@ class Board (
         val number = cells[index].number
         val indexes = mutableListOf<Int>()
         if (number != EMPTY_CELL) {
-            cells.forEachIndexed() {
-                currentIndex, element -> if (element.number == number) indexes.add(currentIndex)
+            cells.forEachIndexed {
+                currentIndex, cell -> if (cell.number == number) indexes.add(currentIndex)
             }
         }
         return indexes
@@ -164,8 +165,6 @@ class Board (
             it.onNotesStateChanged()
         }
     }
-
-
 }
 
 interface OnBoardStateChanged {

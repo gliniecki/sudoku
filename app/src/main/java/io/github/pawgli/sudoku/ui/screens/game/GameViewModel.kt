@@ -7,6 +7,7 @@ import io.github.pawgli.sudoku.data.repository.Result
 import io.github.pawgli.sudoku.models.Board
 import io.github.pawgli.sudoku.models.OnBoardStateChanged
 import io.github.pawgli.sudoku.utils.CallbackEvent
+import io.github.pawgli.sudoku.utils.Difficulty
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
@@ -14,7 +15,7 @@ import java.util.*
 private const val NONE_SELECTED = -1
 
 class GameViewModel(
-    private val difficulty: String,
+    private val difficulty: Difficulty,
     private val boardsRepository: BoardsRepository
 ) : ViewModel(), OnBoardStateChanged, LifecycleObserver {
 

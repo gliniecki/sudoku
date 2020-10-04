@@ -2,7 +2,6 @@ package io.github.pawgli.sudoku.models
 
 import com.squareup.moshi.JsonClass
 
-
 const val EMPTY_CELL = 0
 
 @JsonClass(generateAdapter = true)
