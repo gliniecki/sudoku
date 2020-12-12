@@ -61,3 +61,5 @@ class MainMenuFragment : Fragment() {
         activity?.finish()
     }
 }
+
+// Test comment
